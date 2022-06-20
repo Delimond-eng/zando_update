@@ -59,11 +59,7 @@ class Facture {
     }
     data["user_id"] = authController.loggedUser.value.userId ??
         int.parse(user.userId.toString());
-    if (factureState == null) {
-      data["facture_state"] = "allowed";
-    } else {
-      data["facture_state"] = factureState;
-    }
+    data["facture_state"] = factureState ?? "allowed";
     return data;
   }
 

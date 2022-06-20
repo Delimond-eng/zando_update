@@ -55,11 +55,8 @@ class FactureDetail {
     if (factureId != null) {
       data["facture_id"] = int.parse(factureId.toString());
     }
-    if (factureDetailState == null) {
-      data["facture_detail_state"] = "allowed";
-    } else {
-      data["facture_detail_state"] = factureDetailState;
-    }
+    data["facture_detail_state"] = factureDetailState ?? "allowed";
+
     return data;
   }
 

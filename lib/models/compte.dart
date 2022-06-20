@@ -42,13 +42,7 @@ class Compte {
     } else {
       data["compte_create_At"] = int.parse(compteTimestamp.toString());
     }
-
-    if (compteState == null) {
-      data["compte_state"] = "allowed";
-    } else {
-      data["compte_state"] = compteState;
-    }
-
+    data["compte_state"] = compteState ?? "allowed";
     return data;
   }
 

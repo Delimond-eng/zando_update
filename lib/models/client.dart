@@ -50,11 +50,7 @@ class Client {
     } else {
       data["client_create_At"] = int.parse(clientTimestamp.toString());
     }
-    if (clientState == null) {
-      data["client_state"] = "allowed";
-    } else {
-      data["client_state"] = clientState;
-    }
+    data["client_state"] = clientState ?? "allowed";
     return data;
   }
 

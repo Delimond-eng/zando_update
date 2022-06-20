@@ -79,11 +79,7 @@ class Operations {
       data["operation_mode"] = "";
     }
     data["operation_user_id"] = int.parse(operationUserId.toString());
-    if (operationState == null) {
-      data["operation_state"] = "allowed";
-    } else {
-      data["operation_state"] = operationState;
-    }
+    data["operation_state"] = operationState ?? "allowed";
     return data;
   }
 
