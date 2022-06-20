@@ -126,153 +126,195 @@ class DataController extends GetxController {
     try {
       isSyncWaiting.value = true;
       if (syncDatas.users.isNotEmpty) {
-        for (var user in syncDatas.users) {
-          var check = await db
-              .rawQuery("SELECT * FROM users WHERE user_id = ?", [user.userId]);
-          if (check.isNotEmpty) {
-            var id = await db.update(
-              "users",
-              user.toMap(),
-              where: "user_id=?",
-              whereArgs: [user.userId],
-            );
-            print("user update id : $id");
-          } else {
-            var id = await db.insert(
-              "users",
-              user.toMap(),
-            );
-            print("user inserted id : $id");
+        try {
+          for (var user in syncDatas.users) {
+            var check = await db.rawQuery(
+                "SELECT * FROM users WHERE user_id = ?", [user.userId]);
+            if (check.isNotEmpty) {
+              var id = await db.update(
+                "users",
+                user.toMap(),
+                where: "user_id=?",
+                whereArgs: [user.userId],
+              );
+              print("user update id : $id");
+            } else {
+              var id = await db.insert(
+                "users",
+                user.toMap(),
+              );
+              print("user inserted id : $id");
+            }
           }
+        } catch (err) {
+          print(err);
         }
       }
       if (syncDatas.clients.isNotEmpty) {
-        for (var client in syncDatas.clients) {
-          var check = await db.rawQuery(
-              "SELECT * FROM clients WHERE client_id='${client.clientId}' AND NOT client_state='deleted'");
-          if (check.isEmpty) {
-            var id = await db.insert(
-              "clients",
-              client.toMap(),
-            );
-            print("client inserted id : $id");
+        try {
+          for (var client in syncDatas.clients) {
+            var check = await db.rawQuery(
+                "SELECT * FROM clients WHERE client_id='${client.clientId}' AND NOT client_state='deleted'");
+            if (check.isEmpty) {
+              var id = await db.insert(
+                "clients",
+                client.toMap(),
+              );
+              print("client inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.factures.isNotEmpty) {
-        for (var facture in syncDatas.factures) {
-          var check = await db.rawQuery(
-              "SELECT * FROM factures WHERE facture_id = '${facture.factureId}' AND NOT facture_state='deleted'");
-          if (check.isEmpty) {
-            var id = await db.insert(
-              "factures",
-              facture.toMap(),
-            );
-            print("facture inserted id : $id");
+        try {
+          for (var facture in syncDatas.factures) {
+            var check = await db.rawQuery(
+                "SELECT * FROM factures WHERE facture_id = '${facture.factureId}' AND NOT facture_state='deleted'");
+            if (check.isNotEmpty) {
+              print("exist");
+            } else {
+              var id = await db.insert(
+                "factures",
+                facture.toMap(),
+              );
+              print("facture inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
 
       if (syncDatas.factureDetails.isNotEmpty) {
-        for (var detail in syncDatas.factureDetails) {
-          var check = await db.rawQuery(
-              "SELECT * FROM facture_details WHERE facture_detail_id = '${detail.factureDetailId}' AND NOT facture_detail_state='deleted'");
-          if (check.isEmpty) {
-            var id = await db.insert(
-              "facture_details",
-              detail.toMap(),
-            );
-            print("details inserted id : $id");
+        try {
+          for (var detail in syncDatas.factureDetails) {
+            var check = await db.rawQuery(
+                "SELECT * FROM facture_details WHERE facture_detail_id = '${detail.factureDetailId}' AND NOT facture_detail_state='deleted'");
+            if (check.isNotEmpty) {
+              print("exist !");
+            } else {
+              var id = await db.insert(
+                "facture_details",
+                detail.toMap(),
+              );
+              print("details inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.operations.isNotEmpty) {
-        for (var operation in syncDatas.operations) {
-          var check = await db.rawQuery(
-              "SELECT * FROM operations WHERE operation_id = '${operation.operationId}' AND NOT operation_state='deleted'");
-          if (check.isEmpty) {
-            var id = await db.insert(
-              "operations",
-              operation.toMap(),
-            );
-            print("operation inserted id : $id");
+        try {
+          for (var operation in syncDatas.operations) {
+            var check = await db.rawQuery(
+                "SELECT * FROM operations WHERE operation_id = '${operation.operationId}' AND NOT operation_state='deleted'");
+            if (check.isNotEmpty) {
+              print("exit");
+            } else {
+              var id = await db.insert(
+                "operations",
+                operation.toMap(),
+              );
+              print("operation inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.comptes.isNotEmpty) {
-        for (var compte in syncDatas.comptes) {
-          var check = await db.rawQuery(
-              "SELECT * FROM comptes WHERE compte_id = '${compte.compteId}' AND NOT compte_state='deleted'");
-          if (check.isNotEmpty) {
-            var id = await db.update(
-              "comptes",
-              compte.toMap(),
-              where: "compte_id=?",
-              whereArgs: [int.parse(compte.compteId)],
-            );
-            print("compte inserted id : $id");
-          } else if (check.isEmpty) {
-            var id = await db.insert(
-              "comptes",
-              compte.toMap(),
-            );
-            print("compte update id : $id");
+        try {
+          for (var compte in syncDatas.comptes) {
+            var check = await db.rawQuery(
+                "SELECT * FROM comptes WHERE compte_id = '${compte.compteId}' AND NOT compte_state='deleted'");
+            if (check.isNotEmpty) {
+              var id = await db.update(
+                "comptes",
+                compte.toMap(),
+                where: "compte_id=?",
+                whereArgs: [int.parse(compte.compteId)],
+              );
+              print("compte inserted id : $id");
+            } else if (check.isEmpty) {
+              var id = await db.insert(
+                "comptes",
+                compte.toMap(),
+              );
+              print("compte update id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.stocks.isNotEmpty) {
-        for (var stock in syncDatas.stocks) {
-          var check = await db.rawQuery(
-              "SELECT * FROM stocks WHERE stock_id = '${stock.stockId}' AND NOT stock_state='deleted'");
-          if (check.isNotEmpty) {
-            var id = await db.update(
-              "stocks",
-              stock.toMap(),
-              where: "stock_id=?",
-              whereArgs: [int.parse(stock.stockId.toString())],
-            );
-            print("stock inserted id : $id");
-          } else if (check.isEmpty) {
-            var id = await db.insert(
-              "stocks",
-              stock.toMap(),
-            );
-            print("stock updated id : $id");
+        try {
+          for (var stock in syncDatas.stocks) {
+            var check = await db.rawQuery(
+                "SELECT * FROM stocks WHERE stock_id = '${stock.stockId}' AND NOT stock_state='deleted'");
+            if (check.isNotEmpty) {
+              var id = await db.update(
+                "stocks",
+                stock.toMap(),
+                where: "stock_id=?",
+                whereArgs: [int.parse(stock.stockId.toString())],
+              );
+              print("stock inserted id : $id");
+            } else if (check.isEmpty) {
+              var id = await db.insert(
+                "stocks",
+                stock.toMap(),
+              );
+              print("stock updated id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.mouvements.isNotEmpty) {
-        for (var mouvt in syncDatas.mouvements) {
-          var check = await db.rawQuery(
-              "SELECT * FROM mouvements WHERE mouvt_id = '${mouvt.mouvtId}' AND NOT mouvt_state='deleted'");
-          if (check.isNotEmpty) {
-            var id = await db.update(
-              "mouvements",
-              mouvt.toMap(),
-              where: "mouvt_id=?",
-              whereArgs: [mouvt.mouvtId],
-            );
-            print("mvt inserted id : $id");
-          } else if (check.isEmpty) {
-            var id = await db.insert(
-              "mouvements",
-              mouvt.toMap(),
-            );
-            print("mvt inserted id : $id");
+        try {
+          for (var mouvt in syncDatas.mouvements) {
+            var check = await db.rawQuery(
+                "SELECT * FROM mouvements WHERE mouvt_id = '${mouvt.mouvtId}' AND NOT mouvt_state='deleted'");
+            if (check.isNotEmpty) {
+              var id = await db.update(
+                "mouvements",
+                mouvt.toMap(),
+                where: "mouvt_id=?",
+                whereArgs: [mouvt.mouvtId],
+              );
+              print("mvt inserted id : $id");
+            } else if (check.isEmpty) {
+              var id = await db.insert(
+                "mouvements",
+                mouvt.toMap(),
+              );
+              print("mvt inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       if (syncDatas.articles.isNotEmpty) {
-        for (var article in syncDatas.articles) {
-          var check = await db.rawQuery(
-              "SELECT * FROM articles WHERE article_id = '${article.articleId}' AND NOT article_state='deleted'");
-          if (check.isEmpty) {
-            var id = await db.insert(
-              "articles",
-              article.toMap(),
-            );
-            print("stock inserted id : $id");
+        try {
+          for (var article in syncDatas.articles) {
+            var check = await db.rawQuery(
+                "SELECT * FROM articles WHERE article_id = '${article.articleId}' AND NOT article_state='deleted'");
+            if (check.isEmpty) {
+              var id = await db.insert(
+                "articles",
+                article.toMap(),
+              );
+              print("stock inserted id : $id");
+            }
           }
+        } catch (e) {
+          print(e);
         }
       }
       await refreshDatas();
