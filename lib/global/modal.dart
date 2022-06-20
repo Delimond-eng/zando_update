@@ -43,7 +43,7 @@ class Xloading {
         return AlertDialog(
           backgroundColor: primaryColor.withOpacity(.6),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
           content: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Row(

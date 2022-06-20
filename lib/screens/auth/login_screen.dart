@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   initData() async {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       Xloading.showCircularProgress(key.currentContext,
-          title: "Synchronisation en cours... !");
+          title: "Patientez !\nsynchronisation en cours... !");
       await dataController.syncData();
       Xloading.dismiss();
     });
