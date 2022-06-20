@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:zando/global/data_crypt.dart';
@@ -27,7 +28,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _textUsername = TextEditingController();
   final _textPassword = TextEditingController();
-  bool isLoading = false;
+  final GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
   @override
   void initState() {
     super.initState();
@@ -38,7 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   initData() async {
-    await dataController.syncData();
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      Xloading.showCircularProgress(key.currentContext,
+          title: "Synchronisation en cours... !");
+      await dataController.syncData();
+      Xloading.dismiss();
+    });
   }
 
   @override
@@ -84,95 +90,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (dataController.isSyncWaiting.value == true) ...[
-                              Container(
-                                padding: const EdgeInsets.all(10.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(.2),
-                                      blurRadius: 12.0,
-                                      offset: const Offset(0, 10),
-                                    )
-                                  ],
+                            AuthInput(
+                              hintText: "Entrez nom utilisateur.",
+                              icon: CupertinoIcons.person,
+                              controller: _textUsername,
+                            ),
+                            const SizedBox(
+                              height: 20.0,
+                            ),
+                            AuthInput(
+                              hintText: "Entrez mot de passe.",
+                              isPassWord: true,
+                              controller: _textPassword,
+                            ),
+                            const SizedBox(
+                              height: 25.0,
+                            ),
+                            Container(
+                              height: 60.0,
+                              width: size.width,
+                              color: Colors.transparent,
+                              child: RaisedButton(
+                                color: Colors.pink,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
                                 ),
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        "Veuillez patientez pendant que la synchronisation est en cours ... !",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 5.0,
-                                      ),
-                                      Text(
-                                        "L'application sera momentanément dysfonctionnelle !"
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                            fontSize: 10.0,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey),
-                                      ),
-                                    ]),
-                              )
-                            ] else ...[
-                              AuthInput(
-                                hintText: "Entrez nom utilisateur.",
-                                icon: CupertinoIcons.person,
-                                controller: _textUsername,
+                                splashColor: Colors.pink[200],
+                                elevation: 10.0,
+                                onPressed: () => loggedIn(context),
+                                child: const Text(
+                                  "CONNECTER",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 2.0,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(
-                                height: 20.0,
-                              ),
-                              AuthInput(
-                                hintText: "Entrez mot de passe.",
-                                isPassWord: true,
-                                controller: _textPassword,
-                              ),
-                              const SizedBox(
-                                height: 25.0,
-                              ),
-                              Container(
-                                height: 60.0,
-                                width: size.width,
-                                color: isLoading
-                                    ? Colors.pink[100]
-                                    : Colors.transparent,
-                                child: isLoading
-                                    ? const Center(
-                                        child: Text(
-                                          "Synchronisation en cours...",
-                                        ),
-                                      )
-                                    : RaisedButton(
-                                        color: Colors.pink,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                        ),
-                                        splashColor: Colors.pink[200],
-                                        elevation: 10.0,
-                                        onPressed: () => loggedIn(context),
-                                        child: const Text(
-                                          "CONNECTER",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            letterSpacing: 2.0,
-                                          ),
-                                        ),
-                                      ),
-                              ),
-                            ]
+                            ),
                           ],
                         ),
                       ),

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:zando/global/modal.dart';
 import 'package:zando/models/client.dart';
 import 'package:zando/models/compte.dart';
 import 'package:zando/models/currency.dart';
@@ -276,6 +277,7 @@ class DataController extends GetxController {
       }
       await refreshDatas();
     } catch (err) {
+      Xloading.dismiss();
       print(err);
     }
   }
