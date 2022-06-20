@@ -15,7 +15,7 @@ class DataManager {
       if (facture != null) {
         var details = await db.query(
           "facture_details",
-          where: "facture_id",
+          where: "facture_id=?",
           whereArgs: [factureId],
         );
 

@@ -266,7 +266,7 @@ class DataController extends GetxController {
                 whereArgs: [int.parse(stock.stockId.toString())],
               );
               print("stock inserted id : $id");
-            } else if (check.isEmpty) {
+            } else {
               var id = await db.insert(
                 "stocks",
                 stock.toMap(),
@@ -291,7 +291,7 @@ class DataController extends GetxController {
                 whereArgs: [mouvt.mouvtId],
               );
               print("mvt inserted id : $id");
-            } else if (check.isEmpty) {
+            } else {
               var id = await db.insert(
                 "mouvements",
                 mouvt.toMap(),
