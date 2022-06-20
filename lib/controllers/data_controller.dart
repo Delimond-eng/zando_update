@@ -154,7 +154,7 @@ class DataController extends GetxController {
         try {
           for (var client in syncDatas.clients) {
             var check = await db.rawQuery(
-                "SELECT * FROM clients WHERE client_id='${client.clientId}' AND NOT client_state='deleted'");
+                "SELECT * FROM clients WHERE client_id=?", [client.clientId]);
             if (check.isEmpty) {
               var id = await db.insert(
                 "clients",
@@ -171,7 +171,8 @@ class DataController extends GetxController {
         try {
           for (var facture in syncDatas.factures) {
             var check = await db.rawQuery(
-                "SELECT * FROM factures WHERE facture_id = '${facture.factureId}' AND NOT facture_state='deleted'");
+                "SELECT * FROM factures WHERE facture_id = ?",
+                [facture.factureId]);
             if (check.isNotEmpty) {
               print("exist");
             } else {
@@ -191,7 +192,8 @@ class DataController extends GetxController {
         try {
           for (var detail in syncDatas.factureDetails) {
             var check = await db.rawQuery(
-                "SELECT * FROM facture_details WHERE facture_detail_id = '${detail.factureDetailId}' AND NOT facture_detail_state='deleted'");
+                "SELECT * FROM facture_details WHERE facture_detail_id = ?",
+                [detail.factureDetailId]);
             if (check.isNotEmpty) {
               print("exist !");
             } else {
@@ -210,7 +212,8 @@ class DataController extends GetxController {
         try {
           for (var operation in syncDatas.operations) {
             var check = await db.rawQuery(
-                "SELECT * FROM operations WHERE operation_id = '${operation.operationId}' AND NOT operation_state='deleted'");
+                "SELECT * FROM operations WHERE operation_id = ?",
+                [operation.operationId]);
             if (check.isNotEmpty) {
               print("exit");
             } else {
@@ -229,7 +232,7 @@ class DataController extends GetxController {
         try {
           for (var compte in syncDatas.comptes) {
             var check = await db.rawQuery(
-                "SELECT * FROM comptes WHERE compte_id = '${compte.compteId}' AND NOT compte_state='deleted'");
+                "SELECT * FROM comptes WHERE compte_id = ?", [compte.compteId]);
             if (check.isNotEmpty) {
               var id = await db.update(
                 "comptes",
@@ -254,7 +257,7 @@ class DataController extends GetxController {
         try {
           for (var stock in syncDatas.stocks) {
             var check = await db.rawQuery(
-                "SELECT * FROM stocks WHERE stock_id = '${stock.stockId}' AND NOT stock_state='deleted'");
+                "SELECT * FROM stocks WHERE stock_id = ?", [stock.stockId]);
             if (check.isNotEmpty) {
               var id = await db.update(
                 "stocks",
@@ -279,7 +282,7 @@ class DataController extends GetxController {
         try {
           for (var mouvt in syncDatas.mouvements) {
             var check = await db.rawQuery(
-                "SELECT * FROM mouvements WHERE mouvt_id = '${mouvt.mouvtId}' AND NOT mouvt_state='deleted'");
+                "SELECT * FROM mouvements WHERE mouvt_id = ?", [mouvt.mouvtId]);
             if (check.isNotEmpty) {
               var id = await db.update(
                 "mouvements",
@@ -304,7 +307,8 @@ class DataController extends GetxController {
         try {
           for (var article in syncDatas.articles) {
             var check = await db.rawQuery(
-                "SELECT * FROM articles WHERE article_id = '${article.articleId}' AND NOT article_state='deleted'");
+                "SELECT * FROM articles WHERE article_id =?",
+                [article.articleId]);
             if (check.isEmpty) {
               var id = await db.insert(
                 "articles",
