@@ -41,7 +41,7 @@ class Xloading {
       barrierColor: Colors.black12,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: primaryColor.withOpacity(.6),
+          backgroundColor: Colors.black,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
           content: Padding(
