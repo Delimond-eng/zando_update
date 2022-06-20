@@ -1,0 +1,10 @@
+^D:\FLUTTER PROJECTS\ZANDO\BUILD\WINDOWS\CMAKEFILES\9FE432D1D950E6B28654C8C877288413\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

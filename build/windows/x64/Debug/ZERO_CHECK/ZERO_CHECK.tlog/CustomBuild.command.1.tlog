@@ -1,0 +1,10 @@
+^D:\FLUTTER PROJECTS\ZANDO\BUILD\WINDOWS\CMAKEFILES\9FE432D1D950E6B28654C8C877288413\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" "-SD:/flutter projects/zando/windows" "-BD:/flutter projects/zando/build/windows" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "D:/flutter projects/zando/build/windows/zando.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

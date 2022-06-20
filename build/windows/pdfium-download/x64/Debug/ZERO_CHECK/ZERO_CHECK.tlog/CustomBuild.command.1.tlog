@@ -1,0 +1,10 @@
+^D:\FLUTTER PROJECTS\ZANDO\BUILD\WINDOWS\PDFIUM-DOWNLOAD\CMAKEFILES\AA3B71BC088C2F715B4B5CB6D8DEB396\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" "-SD:/flutter projects/zando/build/windows/pdfium-download" "-BD:/flutter projects/zando/build/windows/pdfium-download" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "D:/flutter projects/zando/build/windows/pdfium-download/pdfium-download.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
