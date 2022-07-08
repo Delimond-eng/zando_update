@@ -54,19 +54,19 @@ class _FacturesViewState extends State<FacturesView> {
       switch (widget.filterKey) {
         case "today":
           jsonData = await db.rawQuery(
-              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$dateNow' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
+              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$dateNow' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
           break;
         case "en attente":
           jsonData = await db.rawQuery(
-              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
+              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
           break;
         case "paie":
           jsonData = await db.rawQuery(
-              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'paie' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
+              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'paie' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
           break;
         default:
           jsonData = await db.rawQuery(
-              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
+              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
       }
 
       if (jsonData != null) {
@@ -164,7 +164,7 @@ class _FacturesViewState extends State<FacturesView> {
 
                         List<Facture> searchedFactures = [];
                         var founded = await db.rawQuery(
-                            "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$date' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
+                            "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$date' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
 
                         factureList.clear();
                         setState(() {
@@ -296,20 +296,13 @@ class _FacturesViewState extends State<FacturesView> {
                                           onValidate: () async {
                                             var db = await DbHelper.initDb();
                                             var facture = factureList[i];
-                                            facture.factureState = "deleted";
-                                            var lastDeletedId = await db.update(
-                                                "factures", facture.toMap(),
-                                                where: "facture_id=?",
-                                                whereArgs: [facture.factureId]);
+                                            var lastDeletedId = await db.rawUpdate(
+                                                "UPDATE factures SET facture_state = ? WHERE facture_id = ?",
+                                                ["deleted", facture.factureId]);
                                             if (lastDeletedId != null) {
-                                              var details = FactureDetail(
-                                                  factureDetailState:
-                                                      "deleted");
-                                              await db.update(
-                                                "facture_details",
-                                                details.toMap(),
-                                                where: "facture_id=?",
-                                                whereArgs: [lastDeletedId],
+                                              await db.rawUpdate(
+                                                "UPDATE facture_details SET facture_detail_state= ? WHERE facture_id= ?",
+                                                ["deleted", facture.factureId],
                                               );
                                               refreshData();
                                             }

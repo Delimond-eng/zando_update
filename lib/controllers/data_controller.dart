@@ -5,6 +5,7 @@ import 'package:zando/models/compte.dart';
 import 'package:zando/models/currency.dart';
 import 'package:zando/models/facture.dart';
 import 'package:zando/models/user.dart';
+import 'package:zando/services/db_manager.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/services/synchonisation.dart';
 //import 'package:zando/services/synchonisation.dart';
@@ -53,7 +54,7 @@ class DataController extends GetxController {
   loadFacturesEnAttente() async {
     var db = await DbHelper.initDb();
     var allFactures = await db.rawQuery(
-        "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_statut = 'en attente' AND NOT factures.facture_state='deleted'");
+        "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND NOT factures.facture_state='deleted' ORDER BY facture_client_id DESC");
     if (allFactures != null) {
       factures.clear();
       allFactures.forEach((e) {
@@ -121,204 +122,116 @@ class DataController extends GetxController {
   }
 
   syncData() async {
-    var db = await DbHelper.initDb();
     var syncDatas = await Synchroniser.outPutData();
     try {
-      isSyncWaiting.value = true;
       if (syncDatas.users.isNotEmpty) {
-        try {
-          for (var user in syncDatas.users) {
-            var check = await db.rawQuery(
-                "SELECT * FROM users WHERE user_id = ?", [user.userId]);
-            if (check.isNotEmpty) {
-              var id = await db.update(
-                "users",
-                user.toMap(),
-                where: "user_id=?",
-                whereArgs: [user.userId],
-              );
-              print("user update id : $id");
-            } else {
-              var id = await db.insert(
-                "users",
-                user.toMap(),
-              );
-              print("user inserted id : $id");
-            }
-          }
-        } catch (err) {
-          print(err);
+        for (var user in syncDatas.users) {
+          await DataManager.checkAndSyncData(
+            "users",
+            user.toMap(),
+            checkField: "user_id",
+            checkValue: user.userId,
+            updated: true,
+          );
         }
       }
       if (syncDatas.clients.isNotEmpty) {
-        try {
-          for (var client in syncDatas.clients) {
-            var check = await db.rawQuery(
-                "SELECT * FROM clients WHERE client_id=?", [client.clientId]);
-            if (check.isEmpty) {
-              var id = await db.insert(
-                "clients",
-                client.toMap(),
-              );
-              print("client inserted id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var client in syncDatas.clients) {
+          await DataManager.checkAndSyncData(
+            "clients",
+            client.toMap(),
+            checkField: "client_id",
+            notDeletedFields: "client_state",
+            checkValue: client.userId,
+            updated: false,
+          );
         }
       }
       if (syncDatas.factures.isNotEmpty) {
         try {
           for (var facture in syncDatas.factures) {
-            var check = await db.rawQuery(
-                "SELECT * FROM factures WHERE facture_id = ?",
-                [facture.factureId]);
-            if (check.isNotEmpty) {
-              print("exist");
-            } else {
-              var id = await db.insert(
-                "factures",
-                facture.toMap(),
-              );
-              print("facture inserted id : $id");
-            }
+            await DataManager.checkAndSyncData(
+              "factures",
+              facture.toMap(),
+              checkField: "facture_id",
+              notDeletedFields: "facture_state",
+              checkValue: facture.factureId,
+              updated: false,
+            );
           }
         } catch (e) {
           print(e);
         }
       }
-
       if (syncDatas.factureDetails.isNotEmpty) {
-        try {
-          for (var detail in syncDatas.factureDetails) {
-            var check = await db.rawQuery(
-                "SELECT * FROM facture_details WHERE facture_detail_id = ?",
-                [detail.factureDetailId]);
-            if (check.isNotEmpty) {
-              print("exist !");
-            } else {
-              var id = await db.insert(
-                "facture_details",
-                detail.toMap(),
-              );
-              print("details inserted id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var detail in syncDatas.factureDetails) {
+          await DataManager.checkAndSyncData(
+            "facture_details",
+            detail.toMap(),
+            checkField: "facture_detail_id",
+            checkValue: detail.factureDetailId,
+            notDeletedFields: "facture_detail_state",
+            updated: false,
+          );
         }
       }
       if (syncDatas.operations.isNotEmpty) {
-        try {
-          for (var operation in syncDatas.operations) {
-            var check = await db.rawQuery(
-                "SELECT * FROM operations WHERE operation_id = ?",
-                [operation.operationId]);
-            if (check.isNotEmpty) {
-              print("exit");
-            } else {
-              var id = await db.insert(
-                "operations",
-                operation.toMap(),
-              );
-              print("operation inserted id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var operation in syncDatas.operations) {
+          await DataManager.checkAndSyncData(
+            "operations",
+            operation.toMap(),
+            checkField: "operation_id",
+            checkValue: operation.operationId,
+            notDeletedFields: "operation_state",
+            updated: false,
+          );
         }
       }
       if (syncDatas.comptes.isNotEmpty) {
-        try {
-          for (var compte in syncDatas.comptes) {
-            var check = await db.rawQuery(
-                "SELECT * FROM comptes WHERE compte_id = ?", [compte.compteId]);
-            if (check.isNotEmpty) {
-              var id = await db.update(
-                "comptes",
-                compte.toMap(),
-                where: "compte_id=?",
-                whereArgs: [int.parse(compte.compteId)],
-              );
-              print("compte inserted id : $id");
-            } else if (check.isEmpty) {
-              var id = await db.insert(
-                "comptes",
-                compte.toMap(),
-              );
-              print("compte update id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var compte in syncDatas.comptes) {
+          await DataManager.checkAndSyncData(
+            "comptes",
+            compte.toMap(),
+            checkField: "compte_id",
+            checkValue: compte.compteId,
+            notDeletedFields: "compte_state",
+            updated: true,
+          );
         }
       }
       if (syncDatas.stocks.isNotEmpty) {
-        try {
-          for (var stock in syncDatas.stocks) {
-            var check = await db.rawQuery(
-                "SELECT * FROM stocks WHERE stock_id = ?", [stock.stockId]);
-            if (check.isNotEmpty) {
-              var id = await db.update(
-                "stocks",
-                stock.toMap(),
-                where: "stock_id=?",
-                whereArgs: [int.parse(stock.stockId.toString())],
-              );
-              print("stock inserted id : $id");
-            } else {
-              var id = await db.insert(
-                "stocks",
-                stock.toMap(),
-              );
-              print("stock updated id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var stock in syncDatas.stocks) {
+          await DataManager.checkAndSyncData(
+            "stocks",
+            stock.toMap(),
+            checkField: "stock_id",
+            notDeletedFields: "stock_state",
+            checkValue: stock.stockId,
+            updated: true,
+          );
         }
       }
       if (syncDatas.mouvements.isNotEmpty) {
-        try {
-          for (var mouvt in syncDatas.mouvements) {
-            var check = await db.rawQuery(
-                "SELECT * FROM mouvements WHERE mouvt_id = ?", [mouvt.mouvtId]);
-            if (check.isNotEmpty) {
-              var id = await db.update(
-                "mouvements",
-                mouvt.toMap(),
-                where: "mouvt_id=?",
-                whereArgs: [mouvt.mouvtId],
-              );
-              print("mvt inserted id : $id");
-            } else {
-              var id = await db.insert(
-                "mouvements",
-                mouvt.toMap(),
-              );
-              print("mvt inserted id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var mouvt in syncDatas.mouvements) {
+          await DataManager.checkAndSyncData(
+            "mouvements",
+            mouvt.toMap(),
+            checkField: "mouvt_id",
+            notDeletedFields: "mouvt_state",
+            checkValue: mouvt.mouvtId,
+            updated: true,
+          );
         }
       }
       if (syncDatas.articles.isNotEmpty) {
-        try {
-          for (var article in syncDatas.articles) {
-            var check = await db.rawQuery(
-                "SELECT * FROM articles WHERE article_id =?",
-                [article.articleId]);
-            if (check.isEmpty) {
-              var id = await db.insert(
-                "articles",
-                article.toMap(),
-              );
-              print("stock inserted id : $id");
-            }
-          }
-        } catch (e) {
-          print(e);
+        for (var article in syncDatas.articles) {
+          await DataManager.checkAndSyncData(
+            "articles",
+            article.toMap(),
+            checkField: "article_id",
+            checkValue: article.articleId,
+            updated: false,
+          );
         }
       }
       await refreshDatas();

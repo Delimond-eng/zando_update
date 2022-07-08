@@ -924,147 +924,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                 controller: scroller,
                                 child: SingleChildScrollView(
                                   controller: scroller,
-                                  child: Column(
-                                    children: datas.map((e) {
-                                      return Container(
-                                        height: 60.0,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0,
-                                        ),
-                                        margin:
-                                            const EdgeInsets.only(bottom: 10.0),
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: e.operationType == "Entrée"
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                            ),
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(.3),
-                                              blurRadius: 12.0,
-                                              offset: Offset.zero,
-                                            )
-                                          ],
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e.operationDate,
-                                                    style: const TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e.operationLibelle,
-                                                    style: const TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        e.operationType ==
-                                                                "Entrée"
-                                                            ? Icons
-                                                                .arrow_drop_up
-                                                            : Icons
-                                                                .arrow_drop_down,
-                                                        color:
-                                                            e.operationType ==
-                                                                    "Entrée"
-                                                                ? Colors.green
-                                                                : Colors.red,
-                                                      ),
-                                                      Text(
-                                                        e.operationType,
-                                                        style: TextStyle(
-                                                          fontSize: 15.0,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color:
-                                                              e.operationType ==
-                                                                      "Entrée"
-                                                                  ? Colors.green
-                                                                  : Colors.red,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "${e.operationMontant} ${e.operationDevise}",
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: e.operationType ==
-                                                              "Entrée"
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
+                                  child: _statDataTable(datas),
                                 ),
                               ),
                       )
@@ -1077,6 +937,124 @@ class _StatisticsTabState extends State<StatisticsTab> {
         );
       },
     ));
+  }
+
+  Widget _statDataTable(List<Operations> datas) {
+    return Column(
+      children: datas.map((e) {
+        return Container(
+          height: 60.0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 5.0,
+          ),
+          margin: const EdgeInsets.only(bottom: 10.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: e.operationType == "Entrée" ? Colors.green : Colors.red,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(.3),
+                blurRadius: 12.0,
+                offset: Offset.zero,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e.operationDate,
+                      style: const TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e.operationLibelle,
+                      style: const TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          e.operationType == "Entrée"
+                              ? Icons.arrow_drop_up
+                              : Icons.arrow_drop_down,
+                          color: e.operationType == "Entrée"
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                        Text(
+                          e.operationType,
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w600,
+                            color: e.operationType == "Entrée"
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${e.operationMontant} ${e.operationDevise}",
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w700,
+                        color: e.operationType == "Entrée"
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 }
 

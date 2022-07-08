@@ -233,40 +233,7 @@ class _CreateCostumerState extends State<CreateCostumer> {
                                       ],
                                     ),
                                   )
-                                : Column(
-                                    children: [
-                                      Container(
-                                        height: 60.0,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: primaryColor,
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              width: 2.0,
-                                            ),
-                                          ),
-                                        ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 20.0,
-                                            vertical: 8.0,
-                                          ),
-                                          child: CustomTableHeader(
-                                            haveActionsButton: true,
-                                            items: [
-                                              "N° Ordre",
-                                              "Nom",
-                                              "Téléphone",
-                                              "Adresse",
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      _tableContent(context)
-                                    ],
-                                  ),
+                                : _customerListTable(context),
                           );
                         }),
                       ],
@@ -276,6 +243,42 @@ class _CreateCostumerState extends State<CreateCostumer> {
           )
         ],
       ),
+    );
+  }
+
+  Widget _customerListTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 60.0,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: primaryColor,
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2.0,
+              ),
+            ),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 8.0,
+            ),
+            child: CustomTableHeader(
+              haveActionsButton: true,
+              items: [
+                "N° Ordre",
+                "Nom",
+                "Téléphone",
+                "Adresse",
+              ],
+            ),
+          ),
+        ),
+        _tableContent(context)
+      ],
     );
   }
 
@@ -566,8 +569,9 @@ class _CreateCostumerState extends State<CreateCostumer> {
             "Cette action est irréversible!\nEtes-vous sûr de vouloir supprimer définitivement ce client ?",
         title: "Suppression client",
         onValidate: () async {
-          int lastDeletedId = await db
-              .delete("clients", where: "client_id=?", whereArgs: [clientId]);
+          int lastDeletedId = await db.rawUpdate(
+              "UPDATE clients SET client_state= ? WHERE client_id= ?",
+              ["deleted", clientId]);
           if (lastDeletedId != null) {
             await dataController.loadClients();
             await Synchroniser.inPutData();

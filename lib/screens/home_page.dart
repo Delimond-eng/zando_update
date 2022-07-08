@@ -797,98 +797,7 @@ class _HomePageState extends State<HomePage> {
                                           controller: _scrollController,
                                           padding:
                                               const EdgeInsets.only(top: 10.0),
-                                          child: Column(
-                                            children: [
-                                              for (int i = 0;
-                                                  i <
-                                                      dataController
-                                                          .factures.length;
-                                                  i++) ...[
-                                                TableContentCard(
-                                                  numOrder: i,
-                                                  data: dataController
-                                                      .factures[i],
-                                                  onViewed: () async {
-                                                    var db =
-                                                        await DbHelper.initDb();
-                                                    var allDetails =
-                                                        await db.query(
-                                                      "facture_details",
-                                                      where: "facture_id=?",
-                                                      whereArgs: [
-                                                        dataController
-                                                            .factures[i]
-                                                            .factureId
-                                                      ],
-                                                    );
-                                                    if (allDetails != null) {
-                                                      List<FactureDetail>
-                                                          details = [];
-                                                      allDetails.forEach((e) {
-                                                        details.add(
-                                                            FactureDetail
-                                                                .fromMap(e));
-                                                      });
-                                                      viewFactureDetail(
-                                                        context,
-                                                        details: details,
-                                                        facture: dataController
-                                                            .factures[i],
-                                                      );
-                                                    }
-                                                  },
-                                                  onDeleted: () {
-                                                    XDialog.show(
-                                                      context: context,
-                                                      content:
-                                                          "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
-                                                      icon: Icons.help,
-                                                      title:
-                                                          "Suppression facture en cours !",
-                                                      onValidate: () async {
-                                                        var db = await DbHelper
-                                                            .initDb();
-                                                        var facture =
-                                                            dataController
-                                                                .factures[i];
-                                                        facture.factureState =
-                                                            "deleted";
-                                                        var lastDeletedId =
-                                                            await db.update(
-                                                                "factures",
-                                                                facture.toMap(),
-                                                                where:
-                                                                    "facture_id=?",
-                                                                whereArgs: [
-                                                              dataController
-                                                                  .factures[i]
-                                                                  .factureId
-                                                            ]);
-                                                        if (lastDeletedId !=
-                                                            null) {
-                                                          print(lastDeletedId);
-                                                          dataController
-                                                              .loadFacturesEnAttente();
-                                                          var details =
-                                                              FactureDetail(
-                                                                  factureDetailState:
-                                                                      "deleted");
-                                                          await db.update(
-                                                              "facture_details",
-                                                              details.toMap(),
-                                                              where:
-                                                                  "facture_id=?",
-                                                              whereArgs: [
-                                                                lastDeletedId
-                                                              ]);
-                                                        }
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ]
-                                            ],
-                                          ),
+                                          child: _customDataTable(context),
                                         ),
                                       ),
                                     )
@@ -904,6 +813,62 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       }),
+    );
+  }
+
+  Widget _customDataTable(BuildContext context) {
+    return Column(
+      children: [
+        for (int i = 0; i < dataController.factures.length; i++) ...[
+          TableContentCard(
+            numOrder: i,
+            data: dataController.factures[i],
+            onViewed: () async {
+              var db = await DbHelper.initDb();
+              var allDetails = await db.query(
+                "facture_details",
+                where: "facture_id=?",
+                whereArgs: [dataController.factures[i].factureId],
+              );
+              if (allDetails != null) {
+                List<FactureDetail> details = [];
+                allDetails.forEach((e) {
+                  details.add(FactureDetail.fromMap(e));
+                });
+                viewFactureDetail(
+                  context,
+                  details: details,
+                  facture: dataController.factures[i],
+                );
+              }
+            },
+            onDeleted: () {
+              XDialog.show(
+                context: context,
+                content:
+                    "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
+                icon: Icons.help,
+                title: "Suppression facture en cours !",
+                onValidate: () async {
+                  var db = await DbHelper.initDb();
+                  var facture = dataController.factures[i];
+                  facture.factureState = "deleted";
+                  var lastDeletedId = await db.rawUpdate(
+                      "UPDATE factures SET facture_state = ? WHERE facture_id=?",
+                      ["deleted", facture.factureId]);
+                  if (lastDeletedId != null) {
+                    await db.rawUpdate(
+                      "UPDATE facture_details SET facture_detail_state = ? WHERE facture_id = ?",
+                      ["deleted", facture.factureId],
+                    );
+                    dataController.loadFacturesEnAttente();
+                  }
+                },
+              );
+            },
+          ),
+        ]
+      ],
     );
   }
 }

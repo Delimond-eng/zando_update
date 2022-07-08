@@ -614,51 +614,7 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
                                         controller: _scrollController,
                                         padding: const EdgeInsets.all(15.0),
                                         physics: const BouncingScrollPhysics(),
-                                        child: Column(
-                                          children: [
-                                            for (int i = 0;
-                                                i < factureDetails.length;
-                                                i++) ...[
-                                              ItemCard(
-                                                numOrder: i + 1,
-                                                label: factureDetails[i]
-                                                    .factureDetailLibelle,
-                                                price: factureDetails[i]
-                                                    .factureDetailPu,
-                                                qty:
-                                                    "${factureDetails[i].factureDetailQte}",
-                                                currency: factureDetails[i]
-                                                    .factureDetailDevise,
-                                                onDeleted: () async {
-                                                  XDialog.show(
-                                                      context: context,
-                                                      icon: Icons.help,
-                                                      title:
-                                                          "Suppression détails facture",
-                                                      content:
-                                                          "Etes-vous sûr de vouloir supprimer ce détail de la facture ?",
-                                                      onValidate: () async {
-                                                        var db = await DbHelper
-                                                            .initDb();
-                                                        int lastDeletedDetail =
-                                                            await db.delete(
-                                                                "facture_details",
-                                                                where: "facture_detail_id=?",
-                                                                whereArgs: [
-                                                              factureDetails[i]
-                                                                  .factureDetailId
-                                                            ]);
-
-                                                        if (lastDeletedDetail !=
-                                                            null) {
-                                                          viewDetails();
-                                                        }
-                                                      });
-                                                },
-                                              ),
-                                            ]
-                                          ],
-                                        ),
+                                        child: _customDataTable(context),
                                       ),
                                     ),
                                   )
@@ -670,6 +626,40 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
           ],
         ),
       ),
+    );
+  }
+
+  _customDataTable(BuildContext context) {
+    return Column(
+      children: [
+        for (int i = 0; i < factureDetails.length; i++) ...[
+          ItemCard(
+            numOrder: i + 1,
+            label: factureDetails[i].factureDetailLibelle,
+            price: factureDetails[i].factureDetailPu,
+            qty: "${factureDetails[i].factureDetailQte}",
+            currency: factureDetails[i].factureDetailDevise,
+            onDeleted: () async {
+              XDialog.show(
+                  context: context,
+                  icon: Icons.help,
+                  title: "Suppression détails facture",
+                  content:
+                      "Etes-vous sûr de vouloir supprimer ce détail de la facture ?",
+                  onValidate: () async {
+                    var db = await DbHelper.initDb();
+                    int lastDeletedDetail = await db.rawUpdate(
+                        "UPDATE facture_details SET facture_detail_state= ? WHERE facture_detail_id= ?",
+                        ["deleted", factureDetails[i].factureDetailId]);
+
+                    if (lastDeletedDetail != null) {
+                      viewDetails();
+                    }
+                  });
+            },
+          ),
+        ]
+      ],
     );
   }
 
