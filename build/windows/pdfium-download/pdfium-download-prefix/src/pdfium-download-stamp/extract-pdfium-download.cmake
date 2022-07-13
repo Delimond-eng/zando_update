@@ -1,7 +1,7 @@
 # Make file names absolute:
 #
-get_filename_component(filename "D:/flutter projects/zando/build/windows/pdfium-download/pdfium-download-prefix/src/pdfium-win-x64.tgz" ABSOLUTE)
-get_filename_component(directory "D:/flutter projects/zando/build/windows/pdfium-src" ABSOLUTE)
+get_filename_component(filename "D:/Professional projects/zando_update/build/windows/pdfium-download/pdfium-download-prefix/src/pdfium-win-x64.tgz" ABSOLUTE)
+get_filename_component(directory "D:/Professional projects/zando_update/build/windows/pdfium-src" ABSOLUTE)
 
 message(STATUS "extracting...
      src='${filename}'

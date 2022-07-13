@@ -133,87 +133,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                               const SizedBox(
                                 height: 10.0,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: Container(
-                                        child: CostumInput(
-                                          color: Colors.blue,
-                                          hintText:
-                                              "Recherchez le paiement par client...",
-                                          icon: CupertinoIcons.search,
-                                          onTextChanged: (value) async {
-                                            var db = await DbHelper.initDb();
-                                            if (value.isNotEmpty) {
-                                              List<Operations>
-                                                  searchedOperations = [];
-                                              var founded = await db.rawQuery(
-                                                  "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
-                                              operations.clear();
-                                              searchedOperations.clear();
-                                              setState(() {
-                                                founded.forEach((e) {
-                                                  searchedOperations.add(
-                                                      Operations.fromMap(e));
-                                                });
-                                                operations
-                                                    .addAll(searchedOperations);
-                                              });
-                                            } else {
-                                              initData();
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 20.0,
-                                    ),
-                                    CustomDatePicker(
-                                      color: Colors.blue,
-                                      date: selectedDate != null
-                                          ? strDateLongFr(dateToString(
-                                              parseTimestampToDate(
-                                                  selectedDate)))
-                                          : null,
-                                      onCleared: () {
-                                        setState(() {
-                                          selectedDate = null;
-                                        });
-                                        initData();
-                                      },
-                                      onShownDatePicker: () async {
-                                        var db = await DbHelper.initDb();
-                                        int date =
-                                            await showDatePicked(context);
-
-                                        if (date != null) {
-                                          setState(() {
-                                            selectedDate = date;
-                                          });
-
-                                          List<Operations> searchedOperations =
-                                              [];
-                                          var founded = await db.rawQuery(
-                                              "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE operations.operation_create_At = '$selectedDate' AND factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
-                                          operations.clear();
-                                          searchedOperations.clear();
-                                          setState(() {
-                                            founded.forEach((e) {
-                                              searchedOperations
-                                                  .add(Operations.fromMap(e));
-                                            });
-                                            operations
-                                                .addAll(searchedOperations);
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              _filterBox(context),
                               const SizedBox(
                                 height: 5.0,
                               ),
@@ -364,6 +284,81 @@ class _FacturePayPageState extends State<FacturePayPage> {
               }),
             ),
           )
+        ],
+      ),
+    );
+  }
+
+  _filterBox(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Flexible(
+            child: Container(
+              child: CostumInput(
+                color: Colors.blue,
+                hintText: "Recherchez le paiement par client...",
+                icon: CupertinoIcons.search,
+                onTextChanged: (value) async {
+                  var db = await DbHelper.initDb();
+                  if (value.isNotEmpty) {
+                    List<Operations> searchedOperations = [];
+                    var founded = await db.rawQuery(
+                        "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
+                    operations.clear();
+                    searchedOperations.clear();
+                    setState(() {
+                      founded.forEach((e) {
+                        searchedOperations.add(Operations.fromMap(e));
+                      });
+                      operations.addAll(searchedOperations);
+                    });
+                  } else {
+                    initData();
+                  }
+                },
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 20.0,
+          ),
+          CustomDatePicker(
+            color: Colors.blue,
+            date: selectedDate != null
+                ? strDateLongFr(
+                    dateToString(parseTimestampToDate(selectedDate)))
+                : null,
+            onCleared: () {
+              setState(() {
+                selectedDate = null;
+              });
+              initData();
+            },
+            onShownDatePicker: () async {
+              var db = await DbHelper.initDb();
+              int date = await showDatePicked(context);
+
+              if (date != null) {
+                setState(() {
+                  selectedDate = date;
+                });
+
+                List<Operations> searchedOperations = [];
+                var founded = await db.rawQuery(
+                    "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE operations.operation_create_At = '$selectedDate' AND factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
+                operations.clear();
+                searchedOperations.clear();
+                setState(() {
+                  founded.forEach((e) {
+                    searchedOperations.add(Operations.fromMap(e));
+                  });
+                  operations.addAll(searchedOperations);
+                });
+              }
+            },
+          ),
         ],
       ),
     );
@@ -978,7 +973,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
     var db = await DbHelper.initDb();
     List<Facture> facturesList = [];
     var allFactures = await db.rawQuery(
-        "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE clients.client_id = $clientId AND factures.facture_statut = 'en attente'");
+        "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_id = $clientId AND factures.facture_statut = 'en attente' ORDER BY factures.facture_id DESC");
     if (allFactures != null) {
       allFactures.forEach((e) {
         facturesList.add(Facture.fromMap(e));

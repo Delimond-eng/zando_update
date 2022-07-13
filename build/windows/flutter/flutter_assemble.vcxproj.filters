@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\CMakeFiles\3609c0df0753aada0f305bc3219c6322\flutter_windows.dll.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\CMakeFiles\f159afd910f171e44039231112ee7a76\flutter_windows.dll.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\CMakeFiles\cb91d645f6be8f8e2da1e964e92bb74a\flutter_assemble.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\CMakeFiles\b5a52b4e2a3fd54782245dc8aabc0cc5\flutter_assemble.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\windows\flutter\CMakeLists.txt" />
+    <CustomBuild Include="D:\Professional projects\zando_update\windows\flutter\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="D:\flutter projects\zando\build\windows\flutter\CMakeFiles\flutter_assemble" />
+    <None Include="D:\Professional projects\zando_update\build\windows\flutter\CMakeFiles\flutter_assemble" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{0241E36D-6006-3D91-8F04-FEF7B5FA8FC3}</UniqueIdentifier>
+      <UniqueIdentifier>{4EA31C4B-3797-3700-ADF9-2992B5D29687}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\aa3b71bc088c2f715b4b5cb6d8deb396\generate.stamp.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\b18a457ec22bcb0228de8511ed5dc466\generate.stamp.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{F8CF5A3B-105B-392B-BDE7-7184CE6C1502}</UniqueIdentifier>
+      <UniqueIdentifier>{1B1B0E7B-C06C-3734-950E-FB9E8AEB9008}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

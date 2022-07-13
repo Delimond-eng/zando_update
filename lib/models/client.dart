@@ -29,13 +29,21 @@ class Client {
       data["client_id"] = int.parse(clientId.toString());
     }
     if (clientNom != null) {
-      data["client_nom"] = clientNom;
+      data["client_nom"] = clientNom.toLowerCase();
     }
     if (clientTel != null) {
-      data["client_tel"] = clientTel;
+      if (clientTel.contains("xx".toLowerCase())) {
+        data["client_tel"] = "aucun";
+      } else {
+        data["client_tel"] = clientTel;
+      }
     }
     if (clientAdresse != null) {
-      data["client_adresse"] = clientAdresse;
+      if (clientAdresse.contains("xx".toLowerCase())) {
+        data["client_adresse"] = "aucun";
+      } else {
+        data["client_adresse"] = clientTel;
+      }
     }
     if (userId == null) {
       data["user_id"] = authController.loggedUser.value.userId;

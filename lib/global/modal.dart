@@ -34,10 +34,11 @@ class Xloading {
         });
   }
 
-  static showCircularProgress(context, {String title}) {
+  static showCircularProgress(context,
+      {String title, bool dismissable = false}) {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: dismissable,
       barrierColor: Colors.black12,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -249,7 +250,7 @@ class XDialog {
     });
   }
 
-  static showErrorMessage(context, {message}) {
+  static showErrorMessage(context, {message, Duration duration}) {
     showDialog(
       context: context,
       barrierColor: Colors.white10,
@@ -296,7 +297,7 @@ class XDialog {
       },
     );
 
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(duration ?? const Duration(seconds: 4), () {
       Get.back();
     });
   }

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\CMakeFiles\fcf8b00789d6f12fb52ef2fe8fd2de0f\INSTALL_force.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\CMakeFiles\77445f7440ad722ca04121a0c8116da7\INSTALL_force.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{0241E36D-6006-3D91-8F04-FEF7B5FA8FC3}</UniqueIdentifier>
+      <UniqueIdentifier>{4EA31C4B-3797-3700-ADF9-2992B5D29687}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

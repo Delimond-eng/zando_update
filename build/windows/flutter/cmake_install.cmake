@@ -1,8 +1,8 @@
-# Install script for directory: D:/flutter projects/zando/windows/flutter
+# Install script for directory: D:/Professional projects/zando_update/windows/flutter
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "$<TARGET_FILE_DIR:zando>")
+  set(CMAKE_INSTALL_PREFIX "$<TARGET_FILE_DIR:zando_update>")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

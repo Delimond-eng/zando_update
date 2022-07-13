@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                 title: "Factures journalières",
                 future: count(
                     from:
-                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_create_At LIKE '%$nowTimestamp%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
+                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At LIKE '%$nowTimestamp%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                         filterKey: "today",
                       ),
                       fullscreenDialog: true,
-                      type: PageTransitionType.bottomToTop,
+                      type: PageTransitionType.fade,
                     ),
                   );
                 },
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                 icon: "assets/icons/loaddoc.svg",
                 future: count(
                     from:
-                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_statut='en attente' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
+                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut='en attente' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
                 title: "Factures en cours",
                 onPressed: () {
                   Navigator.push(
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                         filterKey: "en attente",
                       ),
                       fullscreenDialog: true,
-                      type: PageTransitionType.bottomToTop,
+                      type: PageTransitionType.fade,
                     ),
                   );
                 },
@@ -188,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                 title: "Factures réglées",
                 future: count(
                     from:
-                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_statut='paie' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
+                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut='paie' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                         filterKey: "paie",
                       ),
                       fullscreenDialog: true,
-                      type: PageTransitionType.bottomToTop,
+                      type: PageTransitionType.fade,
                     ),
                   );
                 },
@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                 title: "Toutes les factures",
                 future: count(
                     from:
-                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
+                        "factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'"),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -220,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                         title: "Toutes les factures",
                       ),
                       fullscreenDialog: true,
-                      type: PageTransitionType.bottomToTop,
+                      type: PageTransitionType.fade,
                     ),
                   );
                 },
@@ -500,13 +500,18 @@ class _HomePageState extends State<HomePage> {
                                   "Utilisateur") ...[
                             NavBtn(
                               onPressed: () {
-                                Navigator.push(
+                                /*Navigator.push(
                                   context,
                                   PageTransition(
                                     child: const CreateCostumer(),
                                     fullscreenDialog: true,
                                     type: PageTransitionType.bottomToTop,
                                   ),
+                                );*/
+                                Get.to(
+                                  const CreateCostumer(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 100),
                                 );
                               },
                               icon:
@@ -520,12 +525,10 @@ class _HomePageState extends State<HomePage> {
                               icon: "assets/icons/add_doc.svg",
                               title: "Création Factures",
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const CreateFacturePage(),
-                                    type: PageTransitionType.bottomToTop,
-                                  ),
+                                Get.to(
+                                  const CreateFacturePage(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 500),
                                 );
                               },
                             ),
@@ -536,12 +539,10 @@ class _HomePageState extends State<HomePage> {
                               icon: "assets/icons/payment-svgrepo-com.svg",
                               title: "Paiement factures",
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const FacturePayPage(),
-                                    type: PageTransitionType.bottomToTop,
-                                  ),
+                                Get.to(
+                                  const FacturePayPage(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 500),
                                 );
                               },
                             ),
@@ -556,12 +557,10 @@ class _HomePageState extends State<HomePage> {
                                   "assets/icons/bank-safe-box-svgrepo-com.svg",
                               title: "Gestion trésories",
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const TresorieManagePage(),
-                                    type: PageTransitionType.bottomToTop,
-                                  ),
+                                Get.to(
+                                  const TresorieManagePage(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 500),
                                 );
                               },
                             ),
@@ -572,12 +571,10 @@ class _HomePageState extends State<HomePage> {
                               icon: "assets/icons/menu_profile.svg",
                               title: "Gestion utilisateurs",
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const AdminUserPage(),
-                                    type: PageTransitionType.bottomToTop,
-                                  ),
+                                Get.to(
+                                  const AdminUserPage(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 500),
                                 );
                               },
                             ),
@@ -593,12 +590,10 @@ class _HomePageState extends State<HomePage> {
                               icon: "assets/icons/drop_box.svg",
                               title: "Gestion stock",
                               onPressed: () async {
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: const StockageManagePage(),
-                                    type: PageTransitionType.bottomToTop,
-                                  ),
+                                Get.to(
+                                  const StockageManagePage(),
+                                  transition: Transition.downToUp,
+                                  duration: const Duration(milliseconds: 500),
                                 );
                               },
                             ),
@@ -659,7 +654,8 @@ class _HomePageState extends State<HomePage> {
                                         if (value != null && value.isNotEmpty) {
                                           List<Facture> searchedFactures = [];
                                           var founded = await db.rawQuery(
-                                              "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_statut = 'en attente' AND clients.client_nom LIKE '%$value%'");
+                                            "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND clients.client_nom LIKE '%$value%'",
+                                          );
                                           dataController.factures.clear();
                                           searchedFactures.clear();
                                           founded.forEach((e) {
@@ -700,7 +696,7 @@ class _HomePageState extends State<HomePage> {
 
                                       List<Facture> searchedFactures = [];
                                       var founded = await db.rawQuery(
-                                          "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id INNER JOIN users ON factures.user_id = users.user_id WHERE factures.facture_statut = 'en attente' AND factures.facture_create_At = '$date' ");
+                                          "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND factures.facture_create_At = '$date' ");
                                       dataController.factures.clear();
                                       searchedFactures.clear();
                                       founded.forEach((e) {
@@ -797,98 +793,7 @@ class _HomePageState extends State<HomePage> {
                                           controller: _scrollController,
                                           padding:
                                               const EdgeInsets.only(top: 10.0),
-                                          child: Column(
-                                            children: [
-                                              for (int i = 0;
-                                                  i <
-                                                      dataController
-                                                          .factures.length;
-                                                  i++) ...[
-                                                TableContentCard(
-                                                  numOrder: i,
-                                                  data: dataController
-                                                      .factures[i],
-                                                  onViewed: () async {
-                                                    var db =
-                                                        await DbHelper.initDb();
-                                                    var allDetails =
-                                                        await db.query(
-                                                      "facture_details",
-                                                      where: "facture_id=?",
-                                                      whereArgs: [
-                                                        dataController
-                                                            .factures[i]
-                                                            .factureId
-                                                      ],
-                                                    );
-                                                    if (allDetails != null) {
-                                                      List<FactureDetail>
-                                                          details = [];
-                                                      allDetails.forEach((e) {
-                                                        details.add(
-                                                            FactureDetail
-                                                                .fromMap(e));
-                                                      });
-                                                      viewFactureDetail(
-                                                        context,
-                                                        details: details,
-                                                        facture: dataController
-                                                            .factures[i],
-                                                      );
-                                                    }
-                                                  },
-                                                  onDeleted: () {
-                                                    XDialog.show(
-                                                      context: context,
-                                                      content:
-                                                          "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
-                                                      icon: Icons.help,
-                                                      title:
-                                                          "Suppression facture en cours !",
-                                                      onValidate: () async {
-                                                        var db = await DbHelper
-                                                            .initDb();
-                                                        var facture =
-                                                            dataController
-                                                                .factures[i];
-                                                        facture.factureState =
-                                                            "deleted";
-                                                        var lastDeletedId =
-                                                            await db.update(
-                                                                "factures",
-                                                                facture.toMap(),
-                                                                where:
-                                                                    "facture_id=?",
-                                                                whereArgs: [
-                                                              dataController
-                                                                  .factures[i]
-                                                                  .factureId
-                                                            ]);
-                                                        if (lastDeletedId !=
-                                                            null) {
-                                                          print(lastDeletedId);
-                                                          dataController
-                                                              .loadFacturesEnAttente();
-                                                          var details =
-                                                              FactureDetail(
-                                                                  factureDetailState:
-                                                                      "deleted");
-                                                          await db.update(
-                                                              "facture_details",
-                                                              details.toMap(),
-                                                              where:
-                                                                  "facture_id=?",
-                                                              whereArgs: [
-                                                                lastDeletedId
-                                                              ]);
-                                                        }
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ]
-                                            ],
-                                          ),
+                                          child: _customDataTable(context),
                                         ),
                                       ),
                                     )
@@ -904,6 +809,62 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       }),
+    );
+  }
+
+  Widget _customDataTable(BuildContext context) {
+    return Column(
+      children: [
+        for (int i = 0; i < dataController.factures.length; i++) ...[
+          TableContentCard(
+            numOrder: i,
+            data: dataController.factures[i],
+            onViewed: () async {
+              var db = await DbHelper.initDb();
+              var allDetails = await db.query(
+                "facture_details",
+                where: "facture_id=?",
+                whereArgs: [dataController.factures[i].factureId],
+              );
+              if (allDetails != null) {
+                List<FactureDetail> details = [];
+                allDetails.forEach((e) {
+                  details.add(FactureDetail.fromMap(e));
+                });
+                viewFactureDetail(
+                  context,
+                  details: details,
+                  facture: dataController.factures[i],
+                );
+              }
+            },
+            onDeleted: () {
+              XDialog.show(
+                context: context,
+                content:
+                    "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
+                icon: Icons.help,
+                title: "Suppression facture en cours !",
+                onValidate: () async {
+                  var db = await DbHelper.initDb();
+                  var facture = dataController.factures[i];
+                  facture.factureState = "deleted";
+                  var lastDeletedId = await db.rawUpdate(
+                      "UPDATE factures SET facture_state = ? WHERE facture_id=?",
+                      ["deleted", facture.factureId]);
+                  if (lastDeletedId != null) {
+                    await db.rawUpdate(
+                      "UPDATE facture_details SET facture_detail_state = ? WHERE facture_id = ?",
+                      ["deleted", facture.factureId],
+                    );
+                    dataController.loadFacturesEnAttente();
+                  }
+                },
+              );
+            },
+          ),
+        ]
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:desktop_window/desktop_window.dart';
@@ -15,7 +16,7 @@ import 'package:zando/index.dart';
 import 'package:zando/models/user.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/widgets/auth_input.dart';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../home_page.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _textUsername = TextEditingController();
   final _textPassword = TextEditingController();
   final GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
+  StreamSubscription<ConnectivityResult> subscription;
   @override
   void initState() {
     super.initState();
@@ -38,12 +40,37 @@ class _LoginScreenState extends State<LoginScreen> {
     initData();
   }
 
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
+  }
+
   initData() async {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      Xloading.showCircularProgress(key.currentContext,
-          title: "Patientez !\nsynchronisation en cours... !");
-      await dataController.syncData();
-      Xloading.dismiss();
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) async {
+      if (result == ConnectivityResult.mobile ||
+          result == ConnectivityResult.wifi) {
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          Xloading.showCircularProgress(
+            key.currentContext,
+            title: "Patientez !\nsynchronisation en cours... !",
+            dismissable: true,
+          );
+          await dataController.syncData();
+          Xloading.dismiss();
+        });
+      } else {
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          XDialog.showErrorMessage(
+            context,
+            duration: const Duration(seconds: 4),
+            message:
+                "Veuillez vous connecter à un réseau wifi pour synchroniser les données !",
+          );
+        });
+      }
     });
   }
 
@@ -176,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (connected.userAccess == "allowed") {
           authController.loggedUser.value = connected;
           Xloading.showLottieLoading(context);
+          await dataController.refreshDatas();
           Future.delayed(const Duration(seconds: 2), () {
             Xloading.dismiss();
             Navigator.pushAndRemoveUntil(

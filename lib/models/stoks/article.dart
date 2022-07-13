@@ -25,11 +25,7 @@ class Article {
     } else {
       data["article_create_At"] = int.parse(articleTimestamp.toString());
     }
-    if (articleState == null) {
-      data["article_state"] = "allowed";
-    } else {
-      data["article_state"] = articleState;
-    }
+    data["article_state"] = articleState ?? "allowed";
     return data;
   }
 

@@ -35,6 +35,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^19.4.56-beta
   desktop_window: ^0.4.0
   sqflite_common_ffi: any
+  connectivity_plus: any
 
 dev_dependencies:
   flutter_test:

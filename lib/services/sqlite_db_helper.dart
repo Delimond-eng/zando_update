@@ -6,7 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 
 class DbHelper {
-  static const String DB_NAME = 'zdatabase.dll';
+  static const String DB_NAME = 'zandodbase.dll';
   static Future<void> initDbLibrary() async {
     if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
@@ -15,7 +15,7 @@ class DbHelper {
 
   static Future<Database> initDb() async {
     var databaseFactory = databaseFactoryFfi;
-    Directory appDocDir = await getApplicationDocumentsDirectory();
+    Directory appDocDir = await getApplicationSupportDirectory();
     String appDocPath = appDocDir.path;
     String path = join(appDocPath, DB_NAME);
     var db = await databaseFactory.openDatabase(

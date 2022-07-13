@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\flutter projects\zando\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
+    <ClCompile Include="D:\Professional projects\zando_update\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\flutter projects\zando\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
+    <ClCompile Include="D:\Professional projects\zando_update\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\flutter projects\zando\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
+    <ClCompile Include="D:\Professional projects\zando_update\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\flutter projects\zando\windows\flutter\CMakeLists.txt" />
+    <CustomBuild Include="D:\Professional projects\zando_update\windows\flutter\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{0241E36D-6006-3D91-8F04-FEF7B5FA8FC3}</UniqueIdentifier>
+      <UniqueIdentifier>{4EA31C4B-3797-3700-ADF9-2992B5D29687}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{D6F93530-3C77-35EA-9D0A-499688947AFF}</UniqueIdentifier>
+      <UniqueIdentifier>{F38BBC22-31F3-39BE-B4A2-72B8E38EA281}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

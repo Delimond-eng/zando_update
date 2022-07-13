@@ -1,4 +1,4 @@
-# Install script for directory: D:/flutter projects/zando/build/windows/pdfium-download
+# Install script for directory: D:/Professional projects/zando_update/build/windows/pdfium-download
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/flutter projects/zando/build/windows/pdfium-download/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/Professional projects/zando_update/build/windows/pdfium-download/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

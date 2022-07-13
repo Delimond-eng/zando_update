@@ -2,13 +2,13 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\flutter projects\zando\build\windows\pdfium-download\x64\Debug\ZERO_CHECK</FullPath>
+      <FullPath>D:\Professional projects\zando_update\build\windows\pdfium-download\x64\Debug\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\flutter projects\zando\build\windows\pdfium-download\x64\Debug\pdfium-download</FullPath>
+      <FullPath>D:\Professional projects\zando_update\build\windows\pdfium-download\x64\Debug\pdfium-download</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\flutter projects\zando\build\windows\pdfium-download\x64\Debug\ALL_BUILD</FullPath>
+      <FullPath>D:\Professional projects\zando_update\build\windows\pdfium-download\x64\Debug\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

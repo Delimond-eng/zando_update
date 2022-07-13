@@ -7,6 +7,7 @@
 
 import 'package:zando/main.dart' as entrypoint;
 import 'dart:io'; // flutter_ignore: dart_io_import.
+import 'package:connectivity_plus_linux/connectivity_plus_linux.dart';
 import 'package:path_provider_linux/path_provider_linux.dart';
 import 'package:path_provider_macos/path_provider_macos.dart';
 import 'package:path_provider_windows/path_provider_windows.dart';
@@ -17,6 +18,16 @@ class _PluginRegistrant {
   @pragma('vm:entry-point')
   static void register() {
     if (Platform.isLinux) {
+      try {
+        ConnectivityLinux.registerWith();
+      } catch (err) {
+        print(
+          '`connectivity_plus_linux` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+        rethrow;
+      }
+
       try {
         PathProviderLinux.registerWith();
       } catch (err) {

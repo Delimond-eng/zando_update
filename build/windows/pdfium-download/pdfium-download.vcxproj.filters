@@ -1,44 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-mkdir.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-mkdir.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-download.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-download.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-update.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-update.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-patch.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-patch.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-configure.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-configure.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-build.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-build.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-install.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-install.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\9991a402e2867a45d691b1bd7b5dcd6a\pdfium-download-test.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\634296d4ae3e85ca0e16bd60caf3cf2d\pdfium-download-test.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\76608053af1213a5c941018cfcd93ea2\pdfium-download-complete.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\66c35835944524bdfda4ea24cb6f5ead\pdfium-download-complete.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\aa3b71bc088c2f715b4b5cb6d8deb396\pdfium-download.rule">
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\b18a457ec22bcb0228de8511ed5dc466\pdfium-download.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeLists.txt" />
+    <CustomBuild Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="D:\flutter projects\zando\build\windows\pdfium-download\CMakeFiles\pdfium-download" />
+    <None Include="D:\Professional projects\zando_update\build\windows\pdfium-download\CMakeFiles\pdfium-download" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{F8CF5A3B-105B-392B-BDE7-7184CE6C1502}</UniqueIdentifier>
+      <UniqueIdentifier>{1B1B0E7B-C06C-3734-950E-FB9E8AEB9008}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

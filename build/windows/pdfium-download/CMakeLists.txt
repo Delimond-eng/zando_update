@@ -8,8 +8,8 @@ project(pdfium-download NONE)
 include(ExternalProject)
 ExternalProject_Add(pdfium-download
                     URL;https://github.com/bblanchon/pdfium-binaries/releases/download/chromium/4706/pdfium-win-x64.tgz
-                    SOURCE_DIR          "D:/flutter projects/zando/build/windows/pdfium-src"
-                    BINARY_DIR          "D:/flutter projects/zando/build/windows/pdfium-build"
+                    SOURCE_DIR          "D:/Professional projects/zando_update/build/windows/pdfium-src"
+                    BINARY_DIR          "D:/Professional projects/zando_update/build/windows/pdfium-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

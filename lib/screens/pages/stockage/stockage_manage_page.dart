@@ -189,12 +189,9 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                 title: "Suppression sortie stock !",
                                 onValidate: () async {
                                   var db = await DbHelper.initDb();
-                                  var stock = e;
-                                  stock.stockState = "deleted";
-                                  var lastDeletedId = await db.update(
-                                      "stocks", stock.toMap(),
-                                      where: "stock_id=?",
-                                      whereArgs: [e.stockId]);
+                                  var lastDeletedId = await db.rawUpdate(
+                                      "UPDATE stocks SET stock_state=? WHERE stock_id=?",
+                                      ["deleted", e.stockId]);
                                   if (lastDeletedId != null) {
                                     viewData();
                                   }
@@ -448,7 +445,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
     List<MouvementStock> sorties = [];
 
     var allSorties = await db.rawQuery(
-        "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state ='deleted' AND NOT mouvements.mouvt_state='deleted'");
+        "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state ='deleted' AND NOT mouvements.mouvt_state='deleted' ORDER BY mouvements.mouvt_id DESC");
     if (allSorties != null) {
       sorties.clear();
       allSorties.forEach((e) {
@@ -650,7 +647,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                                   }
                                                   var allSorties =
                                                       await db.rawQuery(
-                                                          "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted'");
+                                                          "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                                                   if (allSorties != null) {
                                                     viewData();
                                                     sorties.clear();
@@ -729,7 +726,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
                           });
                           var db = await DbHelper.initDb();
                           var allSorties = await db.rawQuery(
-                              "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted'");
+                              "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                           if (allSorties != null) {
                             sorties.clear();
                             allSorties.forEach((e) {
@@ -746,7 +743,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                   dateToString(parseTimestampToDate(date)));
                             });
                             var allSorties = await db.rawQuery(
-                                "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE mouvements.mouvt_create_At = '$date'  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted'");
+                                "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE mouvements.mouvt_create_At = '$date'  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                             if (allSorties != null) {
                               sorties.clear();
                               allSorties.forEach((e) {
@@ -819,193 +816,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                 controller: scroller,
                                 child: SingleChildScrollView(
                                   controller: scroller,
-                                  child: Column(
-                                    children: sorties.map((e) {
-                                      return Container(
-                                        height: 60.0,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0,
-                                        ),
-                                        margin:
-                                            const EdgeInsets.only(bottom: 10.0),
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: e.mouvtId.isEven
-                                                  ? primaryColor
-                                                  : Colors.pink,
-                                            ),
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(.3),
-                                              blurRadius: 12.0,
-                                              offset: Offset.zero,
-                                            )
-                                          ],
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e.mouvtDate,
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: e.stock.stockStatus
-                                                                  .trim() ==
-                                                              "actif".trim()
-                                                          ? Colors.black87
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e.stock.article
-                                                        .articleLibelle,
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: e.stock.stockStatus
-                                                                  .trim() ==
-                                                              "actif".trim()
-                                                          ? Colors.black87
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "${e.mouvtQte}",
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: e.stock.stockStatus
-                                                                  .trim() ==
-                                                              "actif".trim()
-                                                          ? Colors.black87
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 2,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    e.stock.stockStatus,
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: e.stock.stockStatus
-                                                                  .trim() ==
-                                                              "actif".trim()
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            if ((authController.loggedUser.value
-                                                    .userRole ==
-                                                "Administrateur")) ...[
-                                              Flexible(
-                                                flex: 1,
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    RoundedBtn(
-                                                      icon:
-                                                          CupertinoIcons.trash,
-                                                      color: Colors.grey[900],
-                                                      onPressed: () {
-                                                        XDialog.show(
-                                                          context: context,
-                                                          content:
-                                                              "Etes-vous sûr de vouloir supprimer cette sortie du stock ?",
-                                                          icon: Icons.help,
-                                                          title:
-                                                              "Suppression sortie stock !",
-                                                          onValidate: () async {
-                                                            var db =
-                                                                await DbHelper
-                                                                    .initDb();
-                                                            var stock = e.stock;
-                                                            e.stock.stockState =
-                                                                "deleted";
-                                                            var lastDeletedId =
-                                                                await db.update(
-                                                                    "stocks",
-                                                                    stock
-                                                                        .toMap(),
-                                                                    where: "stock_id=?",
-                                                                    whereArgs: [
-                                                                  stock.stockId
-                                                                ]);
-                                                            if (lastDeletedId !=
-                                                                null) {
-                                                              Get.back();
-                                                            }
-                                                          },
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ]
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
+                                  child: _sortieTableData(sorties, context),
                                 ),
                               ),
                       )
@@ -1018,6 +829,153 @@ class _StockageManagePageState extends State<StockageManagePage> {
         );
       },
     ));
+  }
+
+  Widget _sortieTableData(List<MouvementStock> sorties, BuildContext context) {
+    return Column(
+      children: sorties.map((e) {
+        return Container(
+          height: 60.0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 5.0,
+          ),
+          margin: const EdgeInsets.only(bottom: 10.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: e.mouvtId.isEven ? primaryColor : Colors.pink,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(.3),
+                blurRadius: 12.0,
+                offset: Offset.zero,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e.mouvtDate,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        color: e.stock.stockStatus.trim() == "actif".trim()
+                            ? Colors.black87
+                            : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e.stock.article.articleLibelle,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        color: e.stock.stockStatus.trim() == "actif".trim()
+                            ? Colors.black87
+                            : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${e.mouvtQte}",
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        color: e.stock.stockStatus.trim() == "actif".trim()
+                            ? Colors.black87
+                            : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e.stock.stockStatus,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                        color: e.stock.stockStatus.trim() == "actif".trim()
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if ((authController.loggedUser.value.userRole ==
+                  "Administrateur")) ...[
+                Flexible(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RoundedBtn(
+                        icon: CupertinoIcons.trash,
+                        color: Colors.grey[900],
+                        onPressed: () {
+                          XDialog.show(
+                            context: context,
+                            content:
+                                "Etes-vous sûr de vouloir supprimer cette sortie du stock ?",
+                            icon: Icons.help,
+                            title: "Suppression sortie stock !",
+                            onValidate: () async {
+                              var db = await DbHelper.initDb();
+                              var stock = e.stock;
+                              var lastDeletedId = await db.rawUpdate(
+                                  "UPDATE stocks SET stock_state=? WHERE stock_id= ?",
+                                  ["deleted", stock.stockId]);
+                              if (lastDeletedId != null) {
+                                Get.back();
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ]
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 
   showAddStockModal(BuildContext context, {Stock data}) {
