@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zando/global/style.dart';
 
 class CostumInput extends StatefulWidget {
@@ -42,77 +43,80 @@ class _CostumInputState extends State<CostumInput> {
         color: Colors.transparent,
       ),
       child: widget.isPassWord == false
-          ? TextField(
-              onChanged: widget.onTextChanged,
-              controller: widget.controller,
-              style: const TextStyle(fontSize: 18.0, color: Colors.black87),
-              keyboardType: (widget.keyType == null)
-                  ? TextInputType.text
-                  : widget.keyType,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(
-                    top: widget.height != null ? 20 : 10, bottom: 15),
-                hintText: widget.hintText,
-                hintStyle: TextStyle(
-                  color: Colors.grey[700],
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w300,
-                ),
-                icon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    widget.icon,
-                    color: Theme.of(context).primaryColor,
-                    size: 15.0,
+          ? Center(
+              child: TextField(
+                onChanged: widget.onTextChanged,
+                controller: widget.controller,
+                style: GoogleFonts.didactGothic(
+                    fontSize: 15.0, color: Colors.black87),
+                keyboardType: (widget.keyType == null)
+                    ? TextInputType.text
+                    : widget.keyType,
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: GoogleFonts.didactGothic(
+                    color: Colors.grey[700],
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14.0,
                   ),
+                  icon: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      widget.icon,
+                      color: Theme.of(context).primaryColor,
+                      size: 15.0,
+                    ),
+                  ),
+                  border: InputBorder.none,
+                  counterText: '',
                 ),
-                border: InputBorder.none,
-                counterText: '',
               ),
             )
-          : TextField(
-              controller: widget.controller,
-              keyboardType: (widget.keyType == null)
-                  ? TextInputType.text
-                  : widget.keyType,
-              obscureText: _isObscure,
-              style: const TextStyle(
-                fontSize: 18.0,
-                color: Colors.black87,
-                fontWeight: FontWeight.w900,
-              ),
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                contentPadding: const EdgeInsets.only(top: 10, bottom: 10),
-                hintStyle: TextStyle(
-                  color: Colors.grey[700],
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 15.0,
+          : Center(
+              child: TextField(
+                controller: widget.controller,
+                keyboardType: (widget.keyType == null)
+                    ? TextInputType.text
+                    : widget.keyType,
+                obscureText: _isObscure,
+                style: GoogleFonts.didactGothic(
+                  fontSize: 18.0,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w900,
                 ),
-                icon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    CupertinoIcons.lock,
-                    size: 20.0,
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: GoogleFonts.didactGothic(
+                    color: Colors.grey[700],
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 14.0,
+                  ),
+                  icon: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      CupertinoIcons.lock,
+                      size: 20.0,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  border: InputBorder.none,
+                  counterText: '',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isObscure
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 15,
+                    ),
                     color: Theme.of(context).primaryColor,
+                    onPressed: () {
+                      setState(() {
+                        _isObscure = !_isObscure;
+                      });
+                    },
                   ),
-                ),
-                border: InputBorder.none,
-                counterText: '',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isObscure
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 15,
-                  ),
-                  color: Theme.of(context).primaryColor,
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  },
                 ),
               ),
             ),

@@ -74,6 +74,19 @@ class _DetailsOperationPageState extends State<DetailsOperationPage> {
           "SELECT * FROM operations INNER JOIN comptes ON operations.operation_compte_id = comptes.compte_id WHERE operations.operation_create_At BETWEEN '$_startDate' AND '$_endDate' AND NOT operations.operation_state='deleted' AND NOT comptes.compte_state='deleted' ORDER BY operations.operation_id DESC ");
     }
     if (allDatas != null) {
+      /*var filters = operations.where(
+        (data) =>
+            data.operationDate
+                .contains(dateToString(parseTimestampToDate(_endDate))) ||
+            data.operationDate
+                .contains(dateToString(parseTimestampToDate(_startDate))),
+      );
+      
+      //todo: this
+      filters.forEach((e) {
+        operations.add(e);
+      });
+      */
       operations.clear();
       allDatas.forEach((e) {
         operations.add(Operations.fromMap(e));

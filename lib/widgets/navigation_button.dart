@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zando/global/style.dart';
 
 class NavBtn extends StatefulWidget {
@@ -22,21 +23,21 @@ class _NavBtnState extends State<NavBtn> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3.0,
+      elevation: 1.0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(5.0),
       ),
       child: Container(
         height: 80.0,
         decoration: BoxDecoration(
           color: isHover ? Colors.pink : Colors.transparent,
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(5.0),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: InkWell(
             splashColor: primaryColor.withOpacity(.4),
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(5.0),
             onTap: widget.onPressed,
             onHover: (val) {
               setState(() {
@@ -53,19 +54,18 @@ class _NavBtnState extends State<NavBtn> {
                     widget.icon,
                     height: 30.0,
                     width: 30.0,
-                    color:
-                        isHover ? Colors.white : Theme.of(context).primaryColor,
+                    color: isHover ? Colors.white : primaryColor,
                   ),
                   const SizedBox(
                     height: 10.0,
                   ),
                   Text(
                     widget.title.toUpperCase(),
-                    style: TextStyle(
+                    style: GoogleFonts.didactGothic(
                       color: isHover ? Colors.white : primaryColor,
                       fontSize: 12.0,
                       letterSpacing: 1.0,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

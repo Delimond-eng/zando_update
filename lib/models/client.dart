@@ -42,7 +42,7 @@ class Client {
       if (clientAdresse.contains("xx".toLowerCase())) {
         data["client_adresse"] = "aucun";
       } else {
-        data["client_adresse"] = clientTel;
+        data["client_adresse"] = clientAdresse;
       }
     }
     if (userId == null) {

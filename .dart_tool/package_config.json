@@ -260,6 +260,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "google_fonts",
+      "rootUri": "file:///C:/Users/Gaston%20Delimond-Dev/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/google_fonts-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "http",
       "rootUri": "file:///C:/Users/Gaston%20Delimond-Dev/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/http-0.13.4",
       "packageUri": "lib/",
@@ -692,7 +698,7 @@
       "languageVersion": "2.11"
     }
   ],
-  "generated": "2022-07-08T22:14:56.976776Z",
+  "generated": "2022-07-20T22:23:42.293931Z",
   "generator": "pub",
   "generatorVersion": "2.15.0-116.0.dev"
 }

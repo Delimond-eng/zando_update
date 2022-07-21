@@ -3,12 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'index.dart';
 import 'screens/auth/login_screen.dart';
+import 'services/native_db_helper.dart';
 import 'services/sqlite_db_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.initDbLibrary();
   await DbHelper.initDb();
+  await NativeDbHelper.initDb();
   Get.put(DataController());
   Get.put(AuthController());
   runApp(const App());

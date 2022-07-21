@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zando/global/modal.dart';
 import 'package:zando/global/style.dart';
 import 'package:zando/global/utils.dart';
@@ -8,7 +9,9 @@ import 'package:zando/index.dart';
 import 'package:zando/models/stoks/article.dart';
 import 'package:zando/models/stoks/mouvement.dart';
 import 'package:zando/models/stoks/stock.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
+import 'package:zando/services/synchonisation.dart';
 import 'package:zando/widgets/custom_button.dart';
 import 'package:zando/widgets/custom_input.dart';
 import 'package:zando/widgets/custom_table_head.dart';
@@ -59,26 +62,34 @@ class _StockageManagePageState extends State<StockageManagePage> {
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(
-                            child: CostumInput(
-                              height: 60.0,
-                              hintText: "Recherche stock article...",
-                              icon: CupertinoIcons.search,
-                              onTextChanged: (value) async {
-                                var db = await DbHelper.initDb();
-                                var allData = await db.rawQuery(
-                                    "SELECT * FROM stocks INNER JOIN articles ON stocks.stock_article_id = articles.article_id  WHERE articles.article_libelle LIKE '%$value%' AND NOT stocks.stock_state='deleted' AND NOT articles.article_state='deleted'");
-                                if (allData != null) {
-                                  stocks.clear();
-                                  setState(() {
-                                    allData.forEach((e) {
-                                      stocks.add(Stock.fromMap(e));
-                                    });
-                                  });
-                                }
-                              },
-                            ),
+                            child: stocks.isEmpty
+                                ? Text(
+                                    "Veuillez créer un nouveau stock de vos articles!",
+                                    style: GoogleFonts.didactGothic(
+                                      color: primaryColor,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ))
+                                : CostumInput(
+                                    height: 60.0,
+                                    hintText: "Recherche stock article...",
+                                    icon: CupertinoIcons.search,
+                                    onTextChanged: (value) async {
+                                      var allData = await NativeDbHelper.rawQuery(
+                                          "SELECT * FROM stocks INNER JOIN articles ON stocks.stock_article_id = articles.article_id  WHERE articles.article_libelle LIKE '%$value%' AND NOT stocks.stock_state='deleted' AND NOT articles.article_state='deleted'");
+                                      if (allData != null) {
+                                        stocks.clear();
+                                        setState(() {
+                                          allData.forEach((e) {
+                                            stocks.add(Stock.fromMap(e));
+                                          });
+                                        });
+                                      }
+                                    },
+                                  ),
                           ),
                           const SizedBox(
                             width: 20.0,
@@ -118,94 +129,105 @@ class _StockageManagePageState extends State<StockageManagePage> {
           elevation: 3.0,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                Container(
-                  height: 60.0,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 2.0,
+            child: stocks.isEmpty
+                ? Center(
+                    child: Text(
+                      "Aucun article repertorié dans le stock !",
+                      style: GoogleFonts.didactGothic(
+                        color: Colors.red,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 8.0,
-                    ),
-                    child: CustomTableHeader(
-                      haveActionsButton:
-                          ((authController.loggedUser.value.userRole ==
-                                  "Administrateur"))
-                              ? true
-                              : false,
-                      items: const [
-                        "Stock Identifiant",
-                        "Date",
-                        "Libellé article",
-                        "Stock Prix d'achat",
-                        "Stock Quantité",
-                        "Stock status",
-                        "actions"
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    radius: const Radius.circular(10.0),
-                    isAlwaysShown: true,
-                    thickness: 10.0,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: Column(
-                        children: stocks.map((e) {
-                          return StockTableCard(
-                            data: e,
-                            onUsingStock: () {
-                              if (e.stockQte == 0) {
-                                XDialog.showErrorMessage(context,
-                                    message:
-                                        "Ce stock est inactif pour l'instant, vous ne devez pas effectuer une sortie !");
-                                return;
-                              } else {
-                                showSortieModal(context, data: e);
-                              }
-                            },
-                            onAddingStock: () =>
-                                showAddStockModal(context, data: e),
-                            onDeleted: () {
-                              XDialog.show(
-                                context: context,
-                                content:
-                                    "Etes-vous sûr de vouloir supprimer cette sortie du stock ?",
-                                icon: Icons.help,
-                                title: "Suppression sortie stock !",
-                                onValidate: () async {
-                                  var db = await DbHelper.initDb();
-                                  var lastDeletedId = await db.rawUpdate(
-                                      "UPDATE stocks SET stock_state=? WHERE stock_id=?",
-                                      ["deleted", e.stockId]);
-                                  if (lastDeletedId != null) {
-                                    viewData();
-                                  }
-                                },
-                              );
-                            },
-                          );
-                        }).toList(),
+                  )
+                : Column(
+                    children: [
+                      Container(
+                        height: 60.0,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0,
+                            vertical: 8.0,
+                          ),
+                          child: CustomTableHeader(
+                            haveActionsButton:
+                                ((authController.loggedUser.value.userRole ==
+                                        "Administrateur"))
+                                    ? true
+                                    : false,
+                            items: const [
+                              "Stock Identifiant",
+                              "Date",
+                              "Libellé article",
+                              "Stock Prix d'achat",
+                              "Stock Quantité",
+                              "Stock status",
+                              "actions"
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        child: Scrollbar(
+                          controller: _scrollController,
+                          radius: const Radius.circular(10.0),
+                          isAlwaysShown: true,
+                          thickness: 10.0,
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Column(
+                              children: stocks.map((e) {
+                                return StockTableCard(
+                                  data: e,
+                                  onUsingStock: () {
+                                    if (e.stockQte == 0) {
+                                      XDialog.showErrorMessage(context,
+                                          message:
+                                              "Ce stock est inactif pour l'instant, vous ne devez pas effectuer une sortie !");
+                                      return;
+                                    } else {
+                                      showSortieModal(context, data: e);
+                                    }
+                                  },
+                                  onAddingStock: () =>
+                                      showAddStockModal(context, data: e),
+                                  onDeleted: () {
+                                    XDialog.show(
+                                      context: context,
+                                      content:
+                                          "Etes-vous sûr de vouloir supprimer cette sortie du stock ?",
+                                      icon: Icons.help,
+                                      title: "Suppression sortie stock !",
+                                      onValidate: () async {
+                                        var db = await DbHelper.initDb();
+                                        var lastDeletedId = await db.rawUpdate(
+                                            "UPDATE stocks SET stock_state=? WHERE stock_id=?",
+                                            ["deleted", e.stockId]);
+                                        if (lastDeletedId != null) {
+                                          viewData();
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
           ),
         ),
       ),
@@ -423,8 +445,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
   }
 
   viewData() async {
-    var db = await DbHelper.initDb();
-    var allData = await db.rawQuery(
+    var allData = await NativeDbHelper.rawQuery(
         "SELECT * FROM stocks INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state='deleted' AND NOT articles.article_state='deleted' ORDER BY stocks.stock_id DESC");
     if (allData != null) {
       stocks.clear();
@@ -437,14 +458,13 @@ class _StockageManagePageState extends State<StockageManagePage> {
   }
 
   showSortieModal(BuildContext context, {Stock data}) async {
-    var db = await DbHelper.initDb();
     final _textQteSortie = TextEditingController();
     final _keyValidator = GlobalKey<FormState>();
     final scroller = ScrollController();
     String selectedDate;
     List<MouvementStock> sorties = [];
 
-    var allSorties = await db.rawQuery(
+    var allSorties = await NativeDbHelper.rawQuery(
         "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state ='deleted' AND NOT mouvements.mouvt_state='deleted' ORDER BY mouvements.mouvt_id DESC");
     if (allSorties != null) {
       sorties.clear();
@@ -597,7 +617,6 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                         icon: CupertinoIcons.checkmark_alt,
                                         label: "Valider",
                                         onPressed: () async {
-                                          var db = await DbHelper.initDb();
                                           if (_keyValidator.currentState
                                               .validate()) {
                                             try {
@@ -619,7 +638,7 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                                 return;
                                               }
                                               var lastInsertedMouvtId =
-                                                  await db.insert(
+                                                  await NativeDbHelper.insert(
                                                 "mouvements",
                                                 mouvement.toMap(),
                                               );
@@ -627,8 +646,8 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                                 var stock = Stock(
                                                   stockQte: newQte,
                                                 );
-                                                var lastUpatedId = await db
-                                                    .update(
+                                                var lastUpatedId =
+                                                    await NativeDbHelper.update(
                                                         "stocks", stock.toMap(),
                                                         where: "stock_id=?",
                                                         whereArgs: [
@@ -638,15 +657,15 @@ class _StockageManagePageState extends State<StockageManagePage> {
                                                   if (newQte == 0) {
                                                     var stock = Stock(
                                                         stockStatus: "vide");
-                                                    await db.update(
+                                                    await NativeDbHelper.update(
                                                         "stocks", stock.toMap(),
-                                                        where: "stock_id=?",
+                                                        where: "stock_id",
                                                         whereArgs: [
                                                           data.stockId
                                                         ]);
                                                   }
                                                   var allSorties =
-                                                      await db.rawQuery(
+                                                      await NativeDbHelper.rawQuery(
                                                           "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                                                   if (allSorties != null) {
                                                     viewData();
@@ -724,8 +743,8 @@ class _StockageManagePageState extends State<StockageManagePage> {
                           setter(() {
                             selectedDate = null;
                           });
-                          var db = await DbHelper.initDb();
-                          var allSorties = await db.rawQuery(
+
+                          var allSorties = await NativeDbHelper.rawQuery(
                               "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                           if (allSorties != null) {
                             sorties.clear();
@@ -735,14 +754,13 @@ class _StockageManagePageState extends State<StockageManagePage> {
                           }
                         },
                         onShownDatePicker: () async {
-                          var db = await DbHelper.initDb();
                           int date = await showDatePicked(context);
                           if (date != null) {
                             setter(() {
                               selectedDate = strDateLongFr(
                                   dateToString(parseTimestampToDate(date)));
                             });
-                            var allSorties = await db.rawQuery(
+                            var allSorties = await NativeDbHelper.rawQuery(
                                 "SELECT * FROM stocks INNER JOIN mouvements ON stocks.stock_id = mouvements.mouvt_stock_id INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE mouvements.mouvt_create_At = '$date'  WHERE NOT stocks.stock_state='deleted' AND NOT mouvements.mouvt_state='deleted' AND articles.article_state='deleted' ORDER BY mouvements.mouvt_id DESC");
                             if (allSorties != null) {
                               sorties.clear();
@@ -960,6 +978,8 @@ class _StockageManagePageState extends State<StockageManagePage> {
                               var lastDeletedId = await db.rawUpdate(
                                   "UPDATE stocks SET stock_state=? WHERE stock_id= ?",
                                   ["deleted", stock.stockId]);
+                              await Synchroniser.inPutData();
+                              await dataController.deleteUnavailableData();
                               if (lastDeletedId != null) {
                                 Get.back();
                               }

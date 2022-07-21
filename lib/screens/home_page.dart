@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:zando/global/data.dart';
 import 'package:zando/global/modal.dart';
@@ -11,6 +12,8 @@ import 'package:zando/index.dart';
 import 'package:zando/models/facture.dart';
 import 'package:zando/models/facture_detail.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
+import 'package:zando/services/synchonisation.dart';
+import 'package:zando/widgets/app_logo.dart';
 import 'package:zando/widgets/currency_card.dart';
 import 'package:zando/widgets/custom_input.dart';
 import 'package:zando/widgets/custom_table_head.dart';
@@ -110,13 +113,6 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Column(
         children: [
-          const TitleCard(
-            icon: "assets/icons/menu_dashbord.svg",
-            title: "TABLEAU DE BORD",
-          ),
-          const SizedBox(
-            height: 20.0,
-          ),
           Row(
             children: [
               DashBoardCard(
@@ -247,34 +243,9 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "Bienvenu  sur votre application",
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-                const SizedBox(
-                  height: 5.0,
-                ),
-                Text(
-                  "Zando",
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 30.0,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2.0,
-                  ),
-                )
-              ],
-            ),
+          const AppLogo(
+            size: 30.0,
+            color: Colors.white,
           ),
           Row(
             children: [
@@ -858,6 +829,7 @@ class _HomePageState extends State<HomePage> {
                       ["deleted", facture.factureId],
                     );
                     dataController.loadFacturesEnAttente();
+                    await Synchroniser.inPutData();
                   }
                 },
               );
@@ -960,7 +932,7 @@ class TitleCard extends StatelessWidget {
           ),
           Text(
             title,
-            style: TextStyle(
+            style: GoogleFonts.didactGothic(
               color: Theme.of(context).primaryColor,
               letterSpacing: 2.0,
               fontWeight: FontWeight.w700,

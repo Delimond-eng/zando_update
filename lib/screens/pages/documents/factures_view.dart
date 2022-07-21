@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zando/global/controllers.dart';
 import 'package:zando/global/data.dart';
 import 'package:zando/global/modal.dart';
 import 'package:zando/global/style.dart';
 import 'package:zando/global/utils.dart';
 import 'package:zando/models/facture.dart';
 import 'package:zando/models/facture_detail.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
+import 'package:zando/services/synchonisation.dart';
 import 'package:zando/widgets/custom_input.dart';
 import 'package:zando/widgets/custom_table_head.dart';
 import 'package:zando/widgets/date_picker.dart';
@@ -52,25 +55,25 @@ class _FacturesViewState extends State<FacturesView> {
     setState(() {
       isLoading = !isLoading;
     });
-    var db = await DbHelper.initDb();
+
     try {
       Future.delayed(const Duration(milliseconds: 500), () async {
         var jsonData;
         switch (widget.filterKey) {
           case "today":
-            jsonData = await db.rawQuery(
+            jsonData = await NativeDbHelper.rawQuery(
                 "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$dateNow' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
             break;
           case "en attente":
-            jsonData = await db.rawQuery(
+            jsonData = await NativeDbHelper.rawQuery(
                 "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
             break;
           case "paie":
-            jsonData = await db.rawQuery(
+            jsonData = await NativeDbHelper.rawQuery(
                 "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'paie' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
             break;
           default:
-            jsonData = await db.rawQuery(
+            jsonData = await NativeDbHelper.rawQuery(
                 "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
         }
 
@@ -106,25 +109,24 @@ class _FacturesViewState extends State<FacturesView> {
                       hintText: "Recherchez la facture de client...",
                       icon: CupertinoIcons.search,
                       onTextChanged: (value) async {
-                        var db = await DbHelper.initDb();
                         if (value != null && value.isNotEmpty) {
                           List<Facture> searchedFactures = [];
                           var founded;
                           switch (widget.filterKey) {
                             case "today":
-                              founded = await db.rawQuery(
+                              founded = await NativeDbHelper.rawQuery(
                                   "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$dateNow' AND clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
                               break;
                             case "en attente":
-                              founded = await db.rawQuery(
+                              founded = await NativeDbHelper.rawQuery(
                                   "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'en attente' AND clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
                               break;
                             case "paie":
-                              founded = await db.rawQuery(
+                              founded = await NativeDbHelper.rawQuery(
                                   "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_statut = 'paie' AND clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
                               break;
                             default:
-                              founded = await db.rawQuery(
+                              founded = await NativeDbHelper.rawQuery(
                                   "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted'");
                           }
 
@@ -161,7 +163,6 @@ class _FacturesViewState extends State<FacturesView> {
                       refreshData();
                     },
                     onShownDatePicker: () async {
-                      var db = await DbHelper.initDb();
                       int date = await showDatePicked(context);
 
                       if (date != null) {
@@ -170,7 +171,7 @@ class _FacturesViewState extends State<FacturesView> {
                         });
 
                         List<Facture> searchedFactures = [];
-                        var founded = await db.rawQuery(
+                        var founded = await NativeDbHelper.rawQuery(
                             "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE factures.facture_create_At = '$date' AND NOT factures.facture_state='deleted' AND NOT clients.client_state='deleted' ORDER BY factures.facture_id DESC");
 
                         factureList.clear();
@@ -269,73 +270,7 @@ class _FacturesViewState extends State<FacturesView> {
                                   child: SingleChildScrollView(
                                     controller: _scrollController,
                                     padding: const EdgeInsets.only(top: 10.0),
-                                    child: Column(
-                                      children: [
-                                        for (int i = 0;
-                                            i < factureList.length;
-                                            i++) ...[
-                                          TableContentCard(
-                                            numOrder: i,
-                                            data: factureList[i],
-                                            onViewed: () async {
-                                              var db = await DbHelper.initDb();
-                                              var allDetails = await db.query(
-                                                "facture_details",
-                                                where: "facture_id=?",
-                                                whereArgs: [
-                                                  factureList[i].factureId
-                                                ],
-                                              );
-                                              if (allDetails != null) {
-                                                List<FactureDetail> details =
-                                                    [];
-                                                allDetails.forEach((e) {
-                                                  details.add(
-                                                      FactureDetail.fromMap(e));
-                                                });
-                                                viewFactureDetail(
-                                                  context,
-                                                  details: details,
-                                                  facture: factureList[i],
-                                                );
-                                              }
-                                            },
-                                            onDeleted: () {
-                                              XDialog.show(
-                                                context: context,
-                                                content:
-                                                    "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
-                                                icon: Icons.help,
-                                                title:
-                                                    "Suppression facture en cours !",
-                                                onValidate: () async {
-                                                  var db =
-                                                      await DbHelper.initDb();
-                                                  var facture = factureList[i];
-                                                  var lastDeletedId = await db
-                                                      .rawUpdate(
-                                                          "UPDATE factures SET facture_state = ? WHERE facture_id = ?",
-                                                          [
-                                                        "deleted",
-                                                        facture.factureId
-                                                      ]);
-                                                  if (lastDeletedId != null) {
-                                                    await db.rawUpdate(
-                                                      "UPDATE facture_details SET facture_detail_state= ? WHERE facture_id= ?",
-                                                      [
-                                                        "deleted",
-                                                        facture.factureId
-                                                      ],
-                                                    );
-                                                    refreshData();
-                                                  }
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        ]
-                                      ],
-                                    ),
+                                    child: _factureTable(context),
                                   ),
                                 ),
                         )
@@ -345,6 +280,62 @@ class _FacturesViewState extends State<FacturesView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _factureTable(BuildContext context) {
+    return Column(
+      children: [
+        for (int i = 0; i < factureList.length; i++) ...[
+          TableContentCard(
+            numOrder: i,
+            data: factureList[i],
+            onViewed: () async {
+              var allDetails = await NativeDbHelper.query(
+                "facture_details",
+                where: "facture_id",
+                whereArgs: [factureList[i].factureId],
+              );
+              if (allDetails != null) {
+                List<FactureDetail> details = [];
+                allDetails.forEach((e) {
+                  details.add(FactureDetail.fromMap(e));
+                });
+                viewFactureDetail(
+                  context,
+                  details: details,
+                  facture: factureList[i],
+                );
+              }
+            },
+            onDeleted: () {
+              XDialog.show(
+                context: context,
+                content:
+                    "Etes-vous sûr de vouloir supprimer cette facture en cours ?",
+                icon: Icons.help,
+                title: "Suppression facture en cours !",
+                onValidate: () async {
+                  var db = await DbHelper.initDb();
+                  var facture = factureList[i];
+                  var lastDeletedId = await db.rawUpdate(
+                      "UPDATE factures SET facture_state = ? WHERE facture_id = ?",
+                      ["deleted", facture.factureId]);
+                  if (lastDeletedId != null) {
+                    await db.rawUpdate(
+                      "UPDATE facture_details SET facture_detail_state= ? WHERE facture_id= ?",
+                      ["deleted", facture.factureId],
+                    );
+                    await Synchroniser.inPutData();
+                    await dataController.deleteUnavailableData();
+                    refreshData();
+                  }
+                },
+              );
+            },
+          ),
+        ]
+      ],
     );
   }
 

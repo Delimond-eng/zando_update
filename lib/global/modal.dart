@@ -9,9 +9,10 @@ class Xloading {
     Get.back();
   }
 
-  static showLottieLoading(BuildContext context) {
+  static showLottieLoading(BuildContext context,
+      {bool barrierDismissible = false}) {
     showDialog(
-        barrierDismissible: false,
+        barrierDismissible: barrierDismissible,
         barrierColor: Colors.black26,
         context: context,
         useRootNavigator: true,
@@ -126,7 +127,7 @@ class XDialog {
         ),
         onPressed: () {
           Get.back();
-          Future.delayed(const Duration(microseconds: 500));
+          Future.delayed(const Duration(microseconds: 100));
           onValidate();
         },
       ),

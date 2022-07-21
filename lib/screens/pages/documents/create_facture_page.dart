@@ -10,6 +10,7 @@ import 'package:zando/models/client.dart';
 import 'package:zando/models/facture.dart';
 import 'package:zando/models/facture_detail.dart';
 import 'package:zando/services/db_manager.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/print_service.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/services/synchonisation.dart';
@@ -191,10 +192,9 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
                         child: CostumInput(
                           hintText: "Filtrez client...",
                           onTextChanged: (value) async {
-                            var db = await DbHelper.initDb();
                             if (value != null && value.isNotEmpty) {
                               List<Client> searchedClient = [];
-                              var clients = await db.rawQuery(
+                              var clients = await NativeDbHelper.rawQuery(
                                   "SELECT * FROM clients WHERE client_nom LIKE '%$value%' AND NOT client_state='deleted'");
                               dataController.clients.clear();
                               searchedClient.clear();
@@ -297,7 +297,6 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
                             icon: Icons.add,
                             label: "Créer",
                             onPressed: () async {
-                              var db = await DbHelper.initDb();
                               Facture facture = Facture(
                                 factureCreateAt: dateTimestamp,
                                 factureClientId: _selectedClientId,
@@ -306,11 +305,18 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
                                 factureMontant: "0",
                               );
 
-                              int lastInsertedFacture = await db.insert(
+                              int lastInsertedFacture =
+                                  await NativeDbHelper.insert(
                                 "factures",
                                 facture.toMap(),
                               );
+
                               if (lastInsertedFacture != null) {
+                                await NativeDbHelper.delete(
+                                  "operations",
+                                  where: "operation_facture_id = ?",
+                                  whereArgs: [lastInsertedFacture],
+                                );
                                 setState(() {
                                   _selectedFactureId = lastInsertedFacture;
                                   _selectedClientId = null;
@@ -651,9 +657,10 @@ class _CreateFacturePageState extends State<CreateFacturePage> {
                     int lastDeletedDetail = await db.rawUpdate(
                         "UPDATE facture_details SET facture_detail_state= ? WHERE facture_detail_id= ?",
                         ["deleted", factureDetails[i].factureDetailId]);
-
+                    await Synchroniser.inPutData();
                     if (lastDeletedDetail != null) {
                       viewDetails();
+                      await dataController.deleteUnavailableData();
                     }
                   });
             },

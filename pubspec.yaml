@@ -28,7 +28,7 @@ dependencies:
   mongo_dart: ^0.7.2
   flutter_svg: any
   page_transition: any
-  #sqlite3: ^1.5.1
+  sqlite3: ^1.5.1
   flutter_custom_clippers: ^2.0.0
   bubble_tab_indicator: "^0.1.5"
   expandable: ^5.0.1
@@ -36,6 +36,7 @@ dependencies:
   desktop_window: ^0.4.0
   sqflite_common_ffi: any
   connectivity_plus: any
+  google_fonts: 2.1.0
 
 dev_dependencies:
   flutter_test:

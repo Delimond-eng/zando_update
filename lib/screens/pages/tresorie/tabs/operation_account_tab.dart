@@ -11,6 +11,7 @@ import 'package:zando/index.dart';
 import 'package:zando/models/compte.dart';
 import 'package:zando/models/operation.dart';
 import 'package:zando/screens/pages/tresorie/pages/details_operations_page.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/services/synchonisation.dart';
 import 'package:zando/widgets/custom_button.dart';
@@ -68,9 +69,8 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
   }
 
   Future<double> countSum(String type, {int compteId, List<int> dates}) async {
-    var db = await DbHelper.initDb();
     if (compteId == null && dates == null) {
-      var countDatas = await db.rawQuery(
+      var countDatas = await NativeDbHelper.rawQuery(
           "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND NOT operation_state='deleted'");
 
       if (countDatas.isNotEmpty) {
@@ -85,7 +85,7 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
     }
 
     if (compteId != null && type != null) {
-      var countDatas = await db.rawQuery(
+      var countDatas = await NativeDbHelper.rawQuery(
           "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_compte_id='$compteId' AND NOT operation_state='deleted'");
 
       if (countDatas.isNotEmpty) {
@@ -100,7 +100,7 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
     }
     if (dates != null) {
       if (dates.length > 1) {
-        var countDatas = await db.rawQuery(
+        var countDatas = await NativeDbHelper.rawQuery(
             "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_create_At BETWEEN '${dates.first}' AND ${dates.last} AND NOT operation_state='deleted'");
 
         if (countDatas.isNotEmpty) {
@@ -114,7 +114,7 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
           return 0;
         }
       } else {
-        var countDatas = await db.rawQuery(
+        var countDatas = await NativeDbHelper.rawQuery(
             "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_create_At='${dates.first}' AND NOT operation_state='deleted' ");
 
         if (countDatas.isNotEmpty) {
@@ -417,7 +417,7 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
                                           width: 4.0,
                                         ),
                                         Text(
-                                          "${data.operationMontant}  ${data.operationDevise}",
+                                          "${double.parse(data.operationMontant.toString()).toStringAsFixed(2)}  ${data.operationDevise}",
                                           style: TextStyle(
                                               fontSize: 15.0,
                                               fontWeight: FontWeight.w800,
@@ -982,7 +982,6 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
   }
 
   Future<void> _filterByDate(BuildContext context) async {
-    var db = await DbHelper.initDb();
     if (_startDate == null && _endDate == null) {
       XDialog.showErrorMessage(
         context,
@@ -994,12 +993,12 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
 
     var allDatas;
     if (_startDate != null && _endDate == null) {
-      allDatas = await db.rawQuery(
+      allDatas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations INNER JOIN comptes ON operations.operation_compte_id = comptes.compte_id WHERE operations.operation_create_At = '$_startDate' AND NOT operation_state='deleted' AND NOT comptes.compte_state='deleted' ORDER BY operations.operation_id DESC ");
       _totEntree = await countSum('Entrée', dates: [_startDate]);
       _totSortie = await countSum('Sortie', dates: [_startDate]);
     } else if (_endDate != null && _startDate == null) {
-      allDatas = await db.rawQuery(
+      allDatas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations INNER JOIN comptes ON operations.operation_compte_id = comptes.compte_id WHERE operations.operation_create_At = '$_endDate' AND NOT operation_state='deleted' ORDER BY operations.operation_id DESC ");
       _totEntree = await countSum('Entrée', dates: [_endDate]);
       _totSortie = await countSum('Sortie', dates: [_endDate]);
@@ -1011,7 +1010,7 @@ class _AccountOperationTabState extends State<AccountOperationTab> {
         );
         return;
       }
-      allDatas = await db.rawQuery(
+      allDatas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations INNER JOIN comptes ON operations.operation_compte_id = comptes.compte_id WHERE operations.operation_create_At BETWEEN '$_startDate' AND '$_endDate' AND NOT operation_state='deleted' ORDER BY operations.operation_id DESC ");
       _totEntree = await countSum('Entrée', dates: [_startDate, _endDate]);
       _totSortie = await countSum('Sortie', dates: [_startDate, _endDate]);

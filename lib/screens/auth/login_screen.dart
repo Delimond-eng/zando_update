@@ -8,13 +8,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:zando/global/data_crypt.dart';
 import 'package:zando/global/modal.dart';
 import 'package:zando/global/style.dart';
 import 'package:zando/index.dart';
 import 'package:zando/models/user.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
+import 'package:zando/widgets/app_logo.dart';
+import 'package:zando/widgets/auth_field.dart';
 import 'package:zando/widgets/auth_input.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../home_page.dart';
@@ -95,80 +99,69 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(15.0),
-                    width: 500.0,
-                    height: 300.0,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(.3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.1),
-                          blurRadius: 10.0,
-                          offset: const Offset(0, 8),
-                        )
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 50.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          AuthInput(
-                            hintText: "Entrez nom utilisateur.",
-                            icon: CupertinoIcons.person,
-                            controller: _textUsername,
-                          ),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
-                          AuthInput(
-                            hintText: "Entrez mot de passe.",
-                            isPassWord: true,
-                            controller: _textPassword,
-                          ),
-                          const SizedBox(
-                            height: 25.0,
-                          ),
-                          Container(
-                            height: 60.0,
-                            width: size.width,
-                            color: Colors.transparent,
-                            child: RaisedButton(
-                              color: Colors.pink,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              splashColor: Colors.pink[200],
-                              elevation: 10.0,
-                              onPressed: () => loggedIn(context),
-                              child: const Text(
-                                "CONNECTER",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 2.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+              const AppLogo(
+                size: 30.0,
+              ),
+              const SizedBox(height: 10.0),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.black26,
+                ),
+                height: 200.0,
+                width: 420.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: AuthField(
+                        hintText: "Entrez le nom d'utilisateur...",
+                        icon: CupertinoIcons.person,
+                        controller: _textUsername,
                       ),
                     ),
-                  ),
-                  Positioned(
-                    child: Container(
-                      color: Colors.pink.withOpacity(.8),
-                      height: 40.0,
+                    const SizedBox(
+                      height: 15.0,
                     ),
-                    top: 0,
-                    right: 0,
-                    left: 0,
-                  )
-                ],
+                    Flexible(
+                      child: AuthField(
+                        hintText: "Entrez le mot de passe...",
+                        icon: CupertinoIcons.lock,
+                        isPassWord: true,
+                        controller: _textPassword,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                    Flexible(
+                      child: Container(
+                        height: 50.0,
+                        width: double.infinity,
+                        child: RaisedButton(
+                          color: Colors.pink,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          splashColor: Colors.pink[200],
+                          elevation: 10.0,
+                          onPressed: () => loggedIn(context),
+                          child: Text(
+                            "Connecter".toUpperCase(),
+                            style: GoogleFonts.didactGothic(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               )
             ],
           ),

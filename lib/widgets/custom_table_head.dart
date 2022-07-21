@@ -24,8 +24,8 @@ class CustomTableHeader extends StatelessWidget {
                   item.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],

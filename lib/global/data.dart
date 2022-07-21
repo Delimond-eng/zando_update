@@ -23,20 +23,13 @@ viewFactureDetail(BuildContext ctx,
     {Facture facture, List<FactureDetail> details}) async {
   final ScrollController _modalScrollController = ScrollController();
   var db = await DbHelper.initDb();
-
-  var paieInfos = await db.rawQuery(
-      "SELECT * FROM operations INNER JOIN factures ON operations.operation_facture_id = factures.facture_id WHERE operations.operation_facture_id = '${facture.factureId}'");
-  List<Operations> operations = [];
   double amountsPaymnt = 0;
-  if (paieInfos != null) {
-    paieInfos.forEach((e) {
-      operations.add(Operations.fromMap(e));
-    });
-    if (operations.isNotEmpty) {
-      for (var data in operations) {
-        amountsPaymnt += data.operationMontant;
-      }
-    }
+  var count = await db.rawQuery(
+      "SELECT SUM(operation_montant) as amountsPaymnt FROM operations INNER JOIN factures ON operations.operation_facture_id = factures.facture_id WHERE operations.operation_facture_id = '${facture.factureId}' AND NOT operations.operation_state = 'deleted'");
+  if (count.first['amountsPaymnt'] != null) {
+    amountsPaymnt = double.parse(
+        double.parse(count.first['amountsPaymnt'].toString())
+            .toStringAsFixed(2));
   }
   Modal.show(
     ctx,
@@ -195,7 +188,7 @@ viewFactureDetail(BuildContext ctx,
                           title: "EQUIVALENT EN CDF : ",
                           value: convertDollarsToCdf(
                                   double.parse(facture.factureMontant))
-                              .toString(),
+                              .toStringAsFixed(2),
                           currency: "CDF",
                         ),
                       ],
@@ -231,7 +224,7 @@ viewFactureDetail(BuildContext ctx,
                         ),
                         FacDetailField(
                           title: "Montant payé : ",
-                          value: "$amountsPaymnt ",
+                          value: "${amountsPaymnt.toStringAsFixed(2)} ",
                           currency: "  ${facture.factureDevise}",
                         ),
                         const SizedBox(
@@ -239,8 +232,9 @@ viewFactureDetail(BuildContext ctx,
                         ),
                         FacDetailField(
                           title: "Restes à payér : ",
-                          value:
-                              "${double.parse(facture.factureMontant) - amountsPaymnt}",
+                          value: (double.parse(facture.factureMontant) -
+                                  amountsPaymnt)
+                              .toStringAsFixed(2),
                           currency: "  ${facture.factureDevise}",
                         ),
                         const SizedBox(

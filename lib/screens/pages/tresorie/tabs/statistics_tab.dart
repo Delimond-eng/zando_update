@@ -9,6 +9,7 @@ import 'package:zando/global/utils.dart';
 import 'package:zando/index.dart';
 import 'package:zando/models/compte.dart';
 import 'package:zando/models/operation.dart';
+import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/widgets/custom_table_head.dart';
 import 'package:zando/widgets/date_picker.dart';
@@ -38,8 +39,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
   }
 
   _showDetails() async {
-    var db = await DbHelper.initDb();
-    var datas = await db.rawQuery(
+    var datas = await NativeDbHelper.rawQuery(
         "SELECT * FROM operations WHERE operation_compte_id = '${_selectedCompte.compteId}' GROUP BY operation_create_At");
     if (datas != null) {
       operations.clear();
@@ -54,7 +54,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     var db = await DbHelper.initDb();
     var datas;
     if (_startDate != null && _endDate == null) {
-      datas = await db.rawQuery(
+      datas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations WHERE operation_compte_id = '${_selectedCompte.compteId}' AND operation_create_At ='$_startDate' GROUP BY operation_create_At");
       _compteSommeEntree = await countSum("Entrée",
           compteId: _selectedCompte.compteId, between: [_startDate]);
@@ -62,7 +62,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
           compteId: _selectedCompte.compteId, between: [_startDate]);
     }
     if (_endDate != null && _startDate == null) {
-      datas = await db.rawQuery(
+      datas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations WHERE operation_compte_id = '${_selectedCompte.compteId}' AND operation_create_At ='$_endDate' GROUP BY operation_create_At");
       _compteSommeEntree = await countSum("Entrée",
           compteId: _selectedCompte.compteId, between: [_endDate]);
@@ -70,7 +70,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
           compteId: _selectedCompte.compteId, between: [_endDate]);
     }
     if (_startDate != null && _endDate != null) {
-      datas = await db.rawQuery(
+      datas = await NativeDbHelper.rawQuery(
           "SELECT * FROM operations WHERE operation_compte_id = '${_selectedCompte.compteId}' AND operation_create_At BETWEEN '$_startDate' AND '$_endDate' GROUP BY operation_create_At");
       _compteSommeEntree = await countSum("Entrée",
           compteId: _selectedCompte.compteId, between: [_startDate, _endDate]);
@@ -260,7 +260,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                           ),
                           if (_selectedCompte.compteDevise == "USD") ...[
                             Text(
-                              "$_compteSommeEntree  USD",
+                              "${_compteSommeEntree.toStringAsFixed(2)}  USD",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -269,7 +269,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                             ),
                           ] else ...[
                             Text(
-                              "${convertDollarsToCdf(_compteSommeEntree)}  CDF",
+                              "${convertDollarsToCdf(_compteSommeEntree).toStringAsFixed(2)}  CDF",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -308,7 +308,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                           ),
                           if (_selectedCompte.compteDevise == "USD") ...[
                             Text(
-                              "$_compteSommeSortie  USD",
+                              "${_compteSommeSortie.toStringAsFixed(2)}  USD",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -317,7 +317,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                             ),
                           ] else ...[
                             Text(
-                              "${convertDollarsToCdf(_compteSommeSortie)}  CDF",
+                              "${convertDollarsToCdf(_compteSommeSortie).toStringAsFixed(2)}  CDF",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -365,7 +365,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                             ),
                           ] else ...[
                             Text(
-                              "${convertDollarsToCdf(_solde)}  CDF",
+                              "${convertDollarsToCdf(_solde).toStringAsFixed(2)}  CDF",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -478,6 +478,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                   ),
                                 ),
                                 FutureBuilder<double>(
+                                  initialData: 0.0,
                                   future: countSumForDate(
                                       "Entrée", data.operationTimestamp),
                                   builder: (context, snapshot) {
@@ -499,7 +500,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                           if (_selectedCompte.compteDevise ==
                                               "CDF") ...[
                                             Text(
-                                              "${convertDollarsToCdf(snapshot.data)} CDF",
+                                              "${convertDollarsToCdf(snapshot.data).toStringAsFixed(2)} CDF",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -508,7 +509,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                             ),
                                           ] else ...[
                                             Text(
-                                              "${snapshot.data} USD",
+                                              "${snapshot.data.toStringAsFixed(2)} USD",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -524,6 +525,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                 FutureBuilder<double>(
                                   future: countSumForDate(
                                       "Sortie", data.operationTimestamp),
+                                  initialData: 0.0,
                                   builder: (context, snapshot) {
                                     return Flexible(
                                       flex: 2,
@@ -543,7 +545,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                           if (_selectedCompte.compteDevise ==
                                               "CDF") ...[
                                             Text(
-                                              "${convertDollarsToCdf(snapshot.data)} CDF",
+                                              "${convertDollarsToCdf(snapshot.data).toStringAsFixed(2)} CDF",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -552,7 +554,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                             ),
                                           ] else ...[
                                             Text(
-                                              "${snapshot.data} USD",
+                                              "${snapshot.data.toStringAsFixed(2)} USD",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -566,6 +568,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                   },
                                 ),
                                 FutureBuilder<double>(
+                                  initialData: 0.0,
                                   future: countSoldeForDate(
                                       data.operationTimestamp),
                                   builder: (context, snapshot) {
@@ -580,7 +583,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                           if (_selectedCompte.compteDevise ==
                                               "CDF") ...[
                                             Text(
-                                              "${convertDollarsToCdf(snapshot.data)} CDF",
+                                              "${convertDollarsToCdf(snapshot.data).toStringAsFixed(2)} CDF",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -589,7 +592,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                                             ),
                                           ] else ...[
                                             Text(
-                                              "${snapshot.data} USD",
+                                              "${snapshot.data.toStringAsFixed(2)} USD",
                                               style: const TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.w800,
@@ -738,9 +741,8 @@ class _StatisticsTabState extends State<StatisticsTab> {
 
   Future<double> countSum(String type,
       {int compteId, List<int> between}) async {
-    var db = await DbHelper.initDb();
     if (compteId == null && between == null) {
-      var countDatas = await db.rawQuery(
+      var countDatas = await NativeDbHelper.rawQuery(
           "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND NOT operations.operation_state='deleted'");
 
       if (countDatas.isNotEmpty) {
@@ -755,7 +757,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     if (compteId != null && between == null) {
       {
-        var countDatas = await db.rawQuery(
+        var countDatas = await NativeDbHelper.rawQuery(
             "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_compte_id='$compteId' AND NOT operations.operation_state='deleted'");
 
         if (countDatas.isNotEmpty) {
@@ -771,7 +773,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     if (between != null && compteId != null) {
       if (between.length > 1) {
-        var countDatas = await db.rawQuery(
+        var countDatas = await NativeDbHelper.rawQuery(
             "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_compte_id='$compteId' AND operation_create_At BETWEEN '${between.first}' AND '${between.last}' AND NOT operations.operation_state='deleted'");
 
         if (countDatas.isNotEmpty) {
@@ -784,7 +786,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
           return 0;
         }
       } else {
-        var countDatas = await db.rawQuery(
+        var countDatas = await NativeDbHelper.rawQuery(
             "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_compte_id='$compteId' AND operation_create_At ='${between.first}' AND NOT operations.operation_state='deleted'");
 
         if (countDatas.isNotEmpty) {
@@ -801,8 +803,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
   }
 
   Future<double> countSumForDate(String type, int date) async {
-    var db = await DbHelper.initDb();
-    var countDatas = await db.rawQuery(
+    var countDatas = await NativeDbHelper.rawQuery(
         "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = '$type' AND operation_create_At='$date' AND NOT operations.operation_state='deleted'");
 
     if (countDatas.isNotEmpty) {
@@ -817,10 +818,9 @@ class _StatisticsTabState extends State<StatisticsTab> {
   }
 
   Future<double> countSoldeForDate(int date) async {
-    var db = await DbHelper.initDb();
-    var countEntree = await db.rawQuery(
+    var countEntree = await NativeDbHelper.rawQuery(
         "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = 'Entrée' AND operation_create_At='$date' AND NOT operations.operation_state='deleted'");
-    var countSortie = await db.rawQuery(
+    var countSortie = await NativeDbHelper.rawQuery(
         "SELECT SUM(operation_montant) as count FROM operations WHERE operation_type = 'Sortie' AND operation_create_At='$date' AND NOT operations.operation_state='deleted'");
     double _entree = 0;
     double _sortie = 0;

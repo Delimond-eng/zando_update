@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as Api;
+import 'package:zando/global/controllers.dart';
 import 'package:zando/models/sync_model.dart';
 
 import 'sqlite_db_helper.dart';
@@ -11,84 +12,67 @@ class Synchroniser {
   static const String baseURL = "http://z-database.rtgroup-rdc.com";
   static Future inPutData() async {
     var db = await DbHelper.initDb();
-    var users = await db.query("users");
-    if (users.isNotEmpty) {
-      send({"users": users});
-    }
     try {
-      await db
-          .rawDelete("DELETE FROM clients WHERE client_state=?", ['deleted']);
-    } catch (err) {}
-    var clients = await db.query("clients");
-    if (clients.isNotEmpty) {
-      send({"clients": clients});
-    }
+      var users = await db.query("users");
+      if (users.isNotEmpty) {
+        send({"users": users});
+      }
+      var clients = await db
+          .query("clients", where: "client_state=?", whereArgs: ["allowed"]);
+      if (clients.isNotEmpty) {
+        await send({"clients": clients});
+      }
+      var factures = await db
+          .query("factures", where: "facture_state=?", whereArgs: ["allowed"]);
+      if (factures.isNotEmpty) {
+        await send({"factures": factures});
+      }
+      try {
+        var factureDetails = await db.query("facture_details",
+            where: "facture_detail_state = ?", whereArgs: ["allowed"]);
+        if (factureDetails.isNotEmpty) {
+          await send({"facture_details": factureDetails});
+        }
+      } catch (err) {}
 
-    try {
-      await db.rawDelete(
-          "DELETE factures FROM factures WHERE facture_state=?", ['deleted']);
-    } catch (err) {}
-    var factures = await db.query("factures");
-    if (factures.isNotEmpty) {
-      send({"factures": factures});
-    }
-    try {
-      await db.rawDelete(
-          "DELETE FROM facture_details WHERE facture_detail_state =?",
-          ['deleted']);
-    } catch (err) {}
-    var factureDetails = await db.query("facture_details");
-    if (factureDetails.isNotEmpty) {
-      send({"facture_details": factureDetails});
-    }
+      try {
+        var comptes = await db
+            .query("comptes", where: "compte_state=?", whereArgs: ["allowed"]);
+        if (comptes.isNotEmpty) {
+          send({"comptes": comptes});
+        }
+      } catch (e) {}
 
-    try {
-      await db
-          .rawQuery("SELECT FROM comptes WHERE compte_state=?", ['deleted']);
+      try {
+        var articles = await db
+            .query("articles", where: "article_state", whereArgs: ["allowed"]);
+        if (articles.isNotEmpty) {
+          await send({"articles": articles});
+        }
+      } catch (e) {}
+      try {
+        var stocks = await db
+            .query("stocks", where: "stock_state", whereArgs: ["allowed"]);
+        if (stocks.isNotEmpty) {
+          await send({"stocks": stocks});
+        }
+      } catch (err) {}
+      try {
+        var mouvements = await db.query("mouvements",
+            where: "mouvt_state=?", whereArgs: ["allowed"]);
+        if (mouvements.isNotEmpty) {
+          await send({"mouvements": mouvements});
+        }
+      } catch (err) {}
+      try {
+        var operations = await db.query("operations",
+            where: "operation_state=?", whereArgs: ["allowed"]);
+        if (operations.isNotEmpty) {
+          await send({"operations": operations});
+        }
+      } catch (err) {}
+      await dataController.refreshDatas();
     } catch (e) {}
-
-    var comptes = await db.query("comptes");
-    if (comptes.isNotEmpty) {
-      send({"comptes": comptes});
-    }
-    try {
-      await db
-          .rawDelete("DELETE FROM articles WHERE article_state=?", ['deleted']);
-    } catch (e) {}
-
-    var articles = await db.query("articles");
-    if (articles.isNotEmpty) {
-      send({"articles": articles});
-    }
-
-    try {
-      await db.rawDelete("DELETE FROM stocks WHERE stock_state=?", ['deleted']);
-    } catch (err) {}
-
-    var stocks = await db.query("stocks");
-    if (stocks.isNotEmpty) {
-      send({"stocks": stocks});
-    }
-
-    try {
-      await db
-          .rawDelete("DELETE FROM mouvements WHERE mouvt_state=?", ['deleted']);
-    } catch (err) {}
-
-    var mouvements = await db.query("mouvements");
-    if (mouvements.isNotEmpty) {
-      send({"mouvements": mouvements});
-    }
-
-    try {
-      await db.rawDelete(
-          "DELETE FROM operations WHERE operation_state=?", ['deleted']);
-    } catch (err) {}
-
-    var operations = await db.query("operations");
-    if (operations.isNotEmpty) {
-      send({"operations": operations});
-    }
   }
 
   static Future<SyncModel> outPutData() async {

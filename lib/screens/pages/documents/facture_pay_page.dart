@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zando/global/modal.dart';
 import 'package:zando/global/style.dart';
 import 'package:zando/global/utils.dart';
@@ -9,7 +10,8 @@ import 'package:zando/models/client.dart';
 import 'package:zando/models/compte.dart';
 import 'package:zando/models/facture.dart';
 import 'package:zando/models/operation.dart';
-import 'package:zando/services/sqlite_db_helper.dart';
+import 'package:zando/services/native_db_helper.dart';
+import 'package:zando/services/synchonisation.dart';
 import 'package:zando/widgets/custom_button.dart';
 import 'package:zando/widgets/custom_input.dart';
 import 'package:zando/widgets/custom_table_head.dart';
@@ -52,10 +54,10 @@ class _FacturePayPageState extends State<FacturePayPage> {
   }
 
   initData() async {
-    var db = await DbHelper.initDb();
-    var allDatas = await db.rawQuery(
+    var allDatas = await NativeDbHelper.rawQuery(
         "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE NOT factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id DESC");
     if (allDatas != null) {
+      Future.delayed(const Duration(milliseconds: 500));
       operations.clear();
       setState(() {
         allDatas.forEach((e) {
@@ -98,22 +100,17 @@ class _FacturePayPageState extends State<FacturePayPage> {
                                 Container(
                                   height: 50.0,
                                   width: double.infinity,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(5.0),
-                                    ),
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(8.0),
+                                  decoration:
+                                      BoxDecoration(color: primaryColor),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
                                     child: Center(
                                       child: Text(
                                         "Facture infos & paiement !",
-                                        style: TextStyle(
+                                        style: GoogleFonts.didactGothic(
                                           fontSize: 18.0,
-                                          fontWeight: FontWeight.w300,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
-                                          letterSpacing: 1.0,
                                         ),
                                       ),
                                     ),
@@ -144,11 +141,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                                   height: 60.0,
                                   width: double.infinity,
                                   decoration: BoxDecoration(
-                                    color: Colors.blue,
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.blue[600], width: 2.0),
-                                    ),
+                                    color: primaryColor,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -221,56 +214,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                                           controller: _clientScroller,
                                           padding: const EdgeInsets.fromLTRB(
                                               8, 10, 8, 0),
-                                          child: Column(
-                                            children: operations
-                                                .map(
-                                                  (e) => PaieDetailsCard(
-                                                      data: e,
-                                                      onCleared: () async {
-                                                        XDialog.show(
-                                                            context: context,
-                                                            content:
-                                                                "Etes-vous sûr de vouloir supprimer ce paiement ?",
-                                                            icon: Icons.help,
-                                                            title:
-                                                                "Suppression Paiement",
-                                                            onValidate:
-                                                                () async {
-                                                              var db =
-                                                                  await DbHelper
-                                                                      .initDb();
-                                                              var operation = e;
-                                                              operation
-                                                                      .operationState =
-                                                                  'deleted';
-                                                              var lastDeletedId =
-                                                                  await db
-                                                                      .update(
-                                                                "operations",
-                                                                operation
-                                                                    .toMap(),
-                                                                where:
-                                                                    "operation_id=?",
-                                                                whereArgs: [
-                                                                  e.operationId
-                                                                ],
-                                                              );
-                                                              if (lastDeletedId !=
-                                                                  null) {
-                                                                XDialog
-                                                                    .showSuccessAnimation(
-                                                                        context);
-                                                                initData();
-                                                                setState(() {
-                                                                  selectedFacture =
-                                                                      null;
-                                                                });
-                                                              }
-                                                            });
-                                                      }),
-                                                )
-                                                .toList(),
-                                          ),
+                                          child: _operationDataTable(context),
                                         ),
                                       ),
                               )
@@ -289,6 +233,49 @@ class _FacturePayPageState extends State<FacturePayPage> {
     );
   }
 
+  Widget _operationDataTable(BuildContext context) {
+    return Column(
+      children: operations
+          .map(
+            (e) => PaieDetailsCard(
+                data: e,
+                onCleared: () async {
+                  XDialog.show(
+                      context: context,
+                      content:
+                          "Etes-vous sûr de vouloir supprimer ce paiement ?",
+                      icon: Icons.help,
+                      title: "Suppression Paiement",
+                      onValidate: () async {
+                        var lastDeletedId = await NativeDbHelper.update(
+                          "operations",
+                          {'operation_state': 'deleted'},
+                          where: "operation_id",
+                          whereArgs: [e.operationId],
+                        );
+                        if (lastDeletedId != null) {
+                          initData();
+                          await NativeDbHelper.update(
+                            "factures",
+                            {'facture_statut': 'en attente'},
+                            where: "facture_id",
+                            whereArgs: [e.operationFactureId],
+                          );
+                          Future.delayed(const Duration(microseconds: 500), () {
+                            Synchroniser.inPutData();
+                            dataController.deleteUnavailableData();
+                          });
+                          setState(() {
+                            selectedFacture = null;
+                          });
+                        }
+                      });
+                }),
+          )
+          .toList(),
+    );
+  }
+
   _filterBox(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -301,11 +288,10 @@ class _FacturePayPageState extends State<FacturePayPage> {
                 hintText: "Recherchez le paiement par client...",
                 icon: CupertinoIcons.search,
                 onTextChanged: (value) async {
-                  var db = await DbHelper.initDb();
                   if (value.isNotEmpty) {
                     List<Operations> searchedOperations = [];
-                    var founded = await db.rawQuery(
-                        "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
+                    var founded = await NativeDbHelper.rawQuery(
+                        "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_nom LIKE '%$value%' AND NOT factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' GROUP BY operations.operation_id ");
                     operations.clear();
                     searchedOperations.clear();
                     setState(() {
@@ -337,7 +323,6 @@ class _FacturePayPageState extends State<FacturePayPage> {
               initData();
             },
             onShownDatePicker: () async {
-              var db = await DbHelper.initDb();
               int date = await showDatePicked(context);
 
               if (date != null) {
@@ -346,7 +331,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                 });
 
                 List<Operations> searchedOperations = [];
-                var founded = await db.rawQuery(
+                var founded = await NativeDbHelper.rawQuery(
                     "SELECT * FROM factures INNER JOIN operations ON factures.facture_id = operations.operation_facture_id INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE operations.operation_create_At = '$selectedDate' AND factures.facture_state='deleted' AND NOT operations.operation_state='deleted' AND NOT clients.client_state='deleted' ORDER BY operations.operation_id ");
                 operations.clear();
                 searchedOperations.clear();
@@ -377,22 +362,16 @@ class _FacturePayPageState extends State<FacturePayPage> {
               Container(
                 height: 50.0,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(5.0),
-                  ),
-                ),
-                child: const Padding(
+                decoration: const BoxDecoration(color: Colors.white),
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       "Sélectionnez la facture concerné !",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
-                        letterSpacing: 1.0,
+                      style: GoogleFonts.didactGothic(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.pink,
                       ),
                     ),
                   ),
@@ -640,7 +619,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                 ),
                 Flexible(
                   child: FutureBuilder<double>(
-                    initialData: 0,
+                    initialData: 0.0,
                     future: countPayAmount(selectedFacture.factureId),
                     builder: (context, snapshot) {
                       return Column(
@@ -656,7 +635,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
                           FieldInfo(
                             title: "Montant restant",
                             value:
-                                "${double.parse(selectedFacture.factureMontant) - snapshot.data} ${selectedFacture.factureDevise}",
+                                "${(double.parse(selectedFacture.factureMontant) - snapshot.data).toStringAsFixed(2)} ${selectedFacture.factureDevise}",
                           ),
                         ],
                       );
@@ -779,10 +758,10 @@ class _FacturePayPageState extends State<FacturePayPage> {
                 underline: const SizedBox(),
                 hint: Text(
                   "Sélectionnez un compte",
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 16.0,
-                  ),
+                  style: GoogleFonts.didactGothic(
+                      color: Colors.grey[600],
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w600),
                 ),
                 isExpanded: true,
                 items: dataController.comptes.map((e) {
@@ -884,12 +863,12 @@ class _FacturePayPageState extends State<FacturePayPage> {
                 Row(
                   children: [
                     Container(
-                      height: 80,
-                      width: 80.0,
+                      height: 70,
+                      width: 70.0,
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: Colors.grey,
                         borderRadius: BorderRadius.circular(
-                          5.0,
+                          70.0,
                         ),
                       ),
                       child: const Center(
@@ -948,8 +927,7 @@ class _FacturePayPageState extends State<FacturePayPage> {
   }
 
   Future<double> countPayAmount(int id) async {
-    var db = await DbHelper.initDb();
-    var paieInfos = await db.rawQuery(
+    var paieInfos = await NativeDbHelper.rawQuery(
         "SELECT * FROM operations INNER JOIN factures ON operations.operation_facture_id = factures.facture_id WHERE operations.operation_facture_id = '$id'");
     List<Operations> operations = [];
     if (paieInfos.isNotEmpty) {
@@ -970,9 +948,8 @@ class _FacturePayPageState extends State<FacturePayPage> {
   }
 
   Future<List<Facture>> _showFactureOfClient(int clientId) async {
-    var db = await DbHelper.initDb();
     List<Facture> facturesList = [];
-    var allFactures = await db.rawQuery(
+    var allFactures = await NativeDbHelper.rawQuery(
         "SELECT * FROM factures INNER JOIN clients ON factures.facture_client_id = clients.client_id WHERE clients.client_id = $clientId AND factures.facture_statut = 'en attente' ORDER BY factures.facture_id DESC");
     if (allFactures != null) {
       allFactures.forEach((e) {
@@ -983,7 +960,6 @@ class _FacturePayPageState extends State<FacturePayPage> {
   }
 
   Future<void> createPaiements(BuildContext context) async {
-    var db = await DbHelper.initDb();
     if (_formKey.currentState.validate()) {
       try {
         int currentUserId = authController.loggedUser.value.userId;
@@ -1021,13 +997,13 @@ class _FacturePayPageState extends State<FacturePayPage> {
               operationMode: selectedMode,
             );
             var lastInsertedOperationId =
-                await db.insert("operations", paiement.toMap());
+                await NativeDbHelper.insert("operations", paiement.toMap());
             if (lastInsertedOperationId != null) {
               if (checkedAmount == 0) {
-                await db.update(
+                await NativeDbHelper.update(
                   "factures",
                   {'facture_statut': 'paie'},
-                  where: "facture_id=?",
+                  where: "facture_id",
                   whereArgs: [selectedFacture.factureId],
                 );
               }
@@ -1065,13 +1041,13 @@ class _FacturePayPageState extends State<FacturePayPage> {
               operationMode: selectedMode,
             );
             var lastInsertedOperationId =
-                await db.insert("operations", paiement.toMap());
+                await NativeDbHelper.insert("operations", paiement.toMap());
             if (lastInsertedOperationId != null) {
               if (_checkedAmount == 0) {
-                await db.update(
+                await NativeDbHelper.update(
                   "factures",
                   {'facture_statut': 'paie'},
-                  where: "facture_id=?",
+                  where: "facture_id",
                   whereArgs: [selectedFacture.factureId],
                 );
               }
@@ -1102,10 +1078,9 @@ class _FacturePayPageState extends State<FacturePayPage> {
   }
 
   void _filterCostumer(String value) async {
-    var db = await DbHelper.initDb();
     if (value != null && value.isNotEmpty) {
       List<Client> searchedClients = [];
-      var founded = await db.rawQuery(
+      var founded = await NativeDbHelper.rawQuery(
           "SELECT * FROM clients INNER JOIN factures ON clients.client_id = factures.facture_client_id  WHERE factures.facture_statut = 'en attente'  AND NOT clients.client_state='deleted' AND factures.facture_montant > 0 AND clients.client_nom LIKE '%$value%'");
       dataController.clientFactures.clear();
       searchedClients.clear();
@@ -1160,9 +1135,9 @@ class PaieDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   data.operationDate,
-                  style: const TextStyle(
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.didactGothic(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1176,9 +1151,9 @@ class PaieDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   "${data.operationFactureId}",
-                  style: const TextStyle(
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.didactGothic(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1192,9 +1167,9 @@ class PaieDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   "${data.facture.factureMontant} ${data.facture.factureDevise}",
-                  style: const TextStyle(
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.didactGothic(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1208,9 +1183,9 @@ class PaieDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   "${data.operationMontant} ${data.operationDevise}",
-                  style: const TextStyle(
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.didactGothic(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1218,6 +1193,7 @@ class PaieDetailsCard extends StatelessWidget {
           ),
           FutureBuilder<double>(
             future: countRest(data.operationMontant, data.operationFactureId),
+            initialData: 0.0,
             builder: (context, snapshot) {
               return Flexible(
                 flex: 2,
@@ -1227,7 +1203,7 @@ class PaieDetailsCard extends StatelessWidget {
                   children: [
                     Text(
                       "${snapshot.data} ${data.facture.factureDevise}",
-                      style: const TextStyle(
+                      style: GoogleFonts.didactGothic(
                         fontSize: 17.0,
                         fontWeight: FontWeight.w700,
                         color: Colors.red,
@@ -1246,9 +1222,9 @@ class PaieDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   data.operationMode,
-                  style: const TextStyle(
-                    fontSize: 17.0,
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.didactGothic(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1263,9 +1239,9 @@ class PaieDetailsCard extends StatelessWidget {
                 Flexible(
                   child: Text(
                     data.client.clientNom,
-                    style: const TextStyle(
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.w500,
+                    style: GoogleFonts.didactGothic(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1281,7 +1257,7 @@ class PaieDetailsCard extends StatelessWidget {
                 children: [
                   RoundedBtn(
                     icon: CupertinoIcons.trash,
-                    color: Colors.grey[900],
+                    color: Colors.red,
                     onPressed: onCleared,
                   ),
                 ],
@@ -1294,8 +1270,7 @@ class PaieDetailsCard extends StatelessWidget {
   }
 
   Future<double> countRest(double amount, int id) async {
-    var db = await DbHelper.initDb();
-    var paieInfos = await db.rawQuery(
+    var paieInfos = await NativeDbHelper.rawQuery(
         "SELECT * FROM operations INNER JOIN factures ON operations.operation_facture_id = factures.facture_id WHERE operations.operation_facture_id = '$id' AND NOT operations.operation_state='deleted' AND NOT factures.facture_state='deleted'");
     List<Operations> operations = [];
     if (paieInfos != null) {
@@ -1334,38 +1309,45 @@ class DetailFactureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 5),
       child: Row(
         children: [
           Flexible(
             child: Container(
-              height: 55.0,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border.all(
-                  color: primaryColor.withOpacity(.5),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey[200],
+                    width: .5,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(5.0),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6.0,
+                  vertical: 5.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
                       children: [
-                        Icon(CupertinoIcons.doc_fill, color: primaryColor),
+                        Icon(
+                          CupertinoIcons.money_dollar_circle_fill,
+                          color: Colors.grey[400],
+                        ),
                         const SizedBox(
                           width: 10,
                         ),
                         Text(
                           "Facture N° ${data.factureId}",
-                          style: TextStyle(
+                          style: GoogleFonts.didactGothic(
                             color: primaryColor,
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -1373,14 +1355,15 @@ class DetailFactureCard extends StatelessWidget {
                     // ignore: deprecated_member_use
                     FlatButton(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
-                      padding: const EdgeInsets.all(18.0),
-                      color: Colors.pink,
+                      padding: const EdgeInsets.all(10.0),
+                      color: Colors.pink[200],
                       onPressed: onPressed,
                       child: const Icon(
                         Icons.arrow_right_alt_outlined,
-                        color: Colors.white,
+                        color: Colors.black,
+                        size: 16.0,
                       ),
                     )
                   ],
