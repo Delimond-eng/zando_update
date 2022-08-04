@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "name": "zando_update",
     "short_name": "zando_update",
+=======
+    "name": "zando",
+    "short_name": "zando",
+>>>>>>> 86c60a63884b674f47ae48e2943b370de1a4a9e4
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

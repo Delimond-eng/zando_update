@@ -36,11 +36,7 @@ class MouvementStock {
     } else {
       data["mouvt_create_At"] = int.parse(mouvtTimestamp);
     }
-    if (mouvtState == null) {
-      data["mouvt_state"] = "allowed";
-    } else {
-      data["mouvt_state"] = mouvtState;
-    }
+    data["mouvt_state"] = mouvtState ?? "allowed";
     return data;
   }
 

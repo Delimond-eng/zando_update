@@ -33,4 +33,53 @@ class DataManager {
       return null;
     }
   }
+
+  static Future checkAndSyncData(String tableName, Map<String, dynamic> data,
+      {String checkField,
+      String notDeletedFields,
+      checkValue,
+      bool updated = false}) async {
+    var db = await DbHelper.initDb();
+    try {
+      db.transaction((txn) async {
+        var check = notDeletedFields != null
+            ? await db.rawQuery(
+                "SELECT * FROM $tableName WHERE $checkField = ? AND NOT $notDeletedFields = ?",
+                [checkValue, "deleted"],
+              )
+            : await db.rawQuery(
+                "SELECT * FROM $tableName WHERE $checkField = ? ",
+                [checkValue],
+              );
+        print("check infos #### $check");
+        if (updated) {
+          if (check.isNotEmpty) {
+            await txn.update(
+              tableName,
+              data,
+              where: "$checkField = ?",
+              whereArgs: [checkValue],
+            );
+            print("updated!");
+          } else {
+            await txn.insert(
+              tableName,
+              data,
+            );
+            print("inserted!");
+          }
+        } else {
+          if (check.isEmpty) {
+            await txn.insert(
+              tableName,
+              data,
+            );
+            print("inserted!");
+          }
+        }
+      });
+    } catch (e) {
+      print("error from $e");
+    }
+  }
 }

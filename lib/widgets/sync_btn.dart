@@ -27,11 +27,12 @@ class SyncBtn extends StatelessWidget {
                 Xloading.showLottieLoading(context);
                 await Synchroniser.inPutData();
                 await dataController.syncData();
+                await dataController.refreshStock();
                 Xloading.dismiss();
               } else {
-                //Xloading.showLottieLoading(context);
+                Xloading.showLottieLoading(context);
                 await Synchroniser.inPutData();
-                //Xloading.dismiss();
+                Xloading.dismiss();
               }
             } catch (err) {
               Xloading.dismiss();

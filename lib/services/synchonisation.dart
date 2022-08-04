@@ -44,15 +44,16 @@ class Synchroniser {
       } catch (e) {}
 
       try {
-        var articles = await db
-            .query("articles", where: "article_state", whereArgs: ["allowed"]);
+        var articles = await db.query("articles",
+            where: "article_state=?", whereArgs: ["allowed"]);
         if (articles.isNotEmpty) {
           await send({"articles": articles});
         }
       } catch (e) {}
+
       try {
         var stocks = await db
-            .query("stocks", where: "stock_state", whereArgs: ["allowed"]);
+            .query("stocks", where: "stock_state=?", whereArgs: ["allowed"]);
         if (stocks.isNotEmpty) {
           await send({"stocks": stocks});
         }

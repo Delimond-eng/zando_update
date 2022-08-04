@@ -32,14 +32,16 @@ class Client {
       data["client_nom"] = clientNom.toLowerCase();
     }
     if (clientTel != null) {
-      if (clientTel.contains("xx".toLowerCase())) {
+      if (clientTel.contains("xx".toLowerCase()) ||
+          clientTel.contains("xx".toUpperCase())) {
         data["client_tel"] = "aucun";
       } else {
         data["client_tel"] = clientTel;
       }
     }
     if (clientAdresse != null) {
-      if (clientAdresse.contains("xx".toLowerCase())) {
+      if (clientAdresse.contains("xx".toLowerCase()) ||
+          clientAdresse.contains("xx".toUpperCase())) {
         data["client_adresse"] = "aucun";
       } else {
         data["client_adresse"] = clientAdresse;

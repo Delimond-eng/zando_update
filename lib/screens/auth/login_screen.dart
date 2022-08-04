@@ -7,7 +7,6 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:zando/global/data_crypt.dart';
@@ -15,11 +14,9 @@ import 'package:zando/global/modal.dart';
 import 'package:zando/global/style.dart';
 import 'package:zando/index.dart';
 import 'package:zando/models/user.dart';
-import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
 import 'package:zando/widgets/app_logo.dart';
 import 'package:zando/widgets/auth_field.dart';
-import 'package:zando/widgets/auth_input.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../home_page.dart';
 
@@ -197,6 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
           authController.loggedUser.value = connected;
           Xloading.showLottieLoading(context);
           await dataController.refreshDatas();
+          await dataController.editCurrency();
           Future.delayed(const Duration(seconds: 2), () {
             Xloading.dismiss();
             Navigator.pushAndRemoveUntil(

@@ -4,6 +4,7 @@ import 'package:zando/models/client.dart';
 import 'package:zando/models/compte.dart';
 import 'package:zando/models/currency.dart';
 import 'package:zando/models/facture.dart';
+import 'package:zando/models/stoks/stock.dart';
 import 'package:zando/models/user.dart';
 import 'package:zando/services/native_db_helper.dart';
 import 'package:zando/services/sqlite_db_helper.dart';
@@ -17,13 +18,13 @@ class DataController extends GetxController {
   var clients = <Client>[].obs;
   var clientFactures = <Client>[].obs;
   var comptes = <Compte>[].obs;
+  var stocks = <Stock>[].obs;
   var currency = Currency().obs;
   var isSyncWaiting = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    editCurrency();
     refreshDatas();
   }
 
@@ -48,6 +49,17 @@ class DataController extends GetxController {
     var taux = await db.query("currency");
     if (taux != null && taux.isNotEmpty) {
       currency.value = Currency.fromMap(taux.first);
+    }
+  }
+
+  refreshStock() async {
+    var allData = await NativeDbHelper.rawQuery(
+        "SELECT * FROM stocks INNER JOIN articles ON stocks.stock_article_id = articles.article_id WHERE NOT stocks.stock_state='deleted' AND NOT articles.article_state='deleted' ORDER BY stocks.stock_id DESC");
+    if (allData != null) {
+      stocks.clear();
+      allData.forEach((e) {
+        stocks.add(Stock.fromMap(e));
+      });
     }
   }
 
@@ -197,6 +209,8 @@ class DataController extends GetxController {
               );
               if (check.isEmpty) {
                 await db.insert("factures", facture.toMap());
+              } else {
+                Get.back();
               }
             } else {
               await db.delete("factures",
@@ -287,14 +301,12 @@ class DataController extends GetxController {
               if (check.isEmpty) {
                 await db.insert("stocks", stock.toMap());
               } else {
-                if (stock.stockState != "deleted") {
-                  await db.update(
-                    "stocks",
-                    stock.toMap(),
-                    where: "stock_id = ?",
-                    whereArgs: [stock.stockId],
-                  );
-                }
+                await db.update(
+                  "stocks",
+                  stock.toMap(),
+                  where: "stock_id = ?",
+                  whereArgs: [stock.stockId],
+                );
               }
             } else {
               await db.delete("stocks",
@@ -314,15 +326,6 @@ class DataController extends GetxController {
               );
               if (check.isEmpty) {
                 await db.insert("mouvements", mouvt.toMap());
-              } else {
-                if (mouvt.mouvtState != "deleted") {
-                  await db.update(
-                    "mouvements",
-                    mouvt.toMap(),
-                    where: "mouvt_id=?",
-                    whereArgs: [mouvt.mouvtId],
-                  );
-                }
               }
             } else {
               await db.delete("mouvements",
@@ -340,7 +343,7 @@ class DataController extends GetxController {
                 "SELECT * FROM articles WHERE article_id = ?",
                 [article.articleId],
               );
-              if (check.isEmpty && article.articleState != "deleted") {
+              if (check.isEmpty) {
                 await db.insert("articles", article.toMap());
               }
             } else {

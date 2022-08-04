@@ -56,11 +56,7 @@ class Stock {
     } else {
       data["stock_create_At"] = int.parse(stockCreatAt.toString());
     }
-    if (stockState == null) {
-      data["stock_state"] = "allowed";
-    } else {
-      data["stock_state"] = stockState;
-    }
+    data["stock_state"] = stockState ?? "allowed";
     return data;
   }
 
